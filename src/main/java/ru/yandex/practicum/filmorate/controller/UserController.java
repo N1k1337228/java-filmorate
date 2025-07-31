@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/")
 public class UserController {
     HashMap<Integer, User> userMap = new HashMap<>();
 
@@ -74,13 +74,10 @@ public class UserController {
             throw new ValidationException("Должно быть указано имя пользователя");
         }
         if (userMap.containsKey(user.getId())) {
-            User oldUser = userMap.get(user.getId());
-            oldUser.setEmail(user.getEmail());
-            oldUser.setBirthday(user.getBirthday());
-            oldUser.setName(user.getName());
+            userMap.put(user.getId(),user);
             log.info("успешно обработан запрос:PUT /users, успешно обновлён пользователь {}", user.getId());
             log.debug("успешно обработан запрос:PUT /users, успешно обновлён пользователь {}", user.getId());
-            return oldUser;
+            return user;
         }
         log.error("Пользователь с Id {} не был найден", user.getId());
         throw new NotFoundException("Пользователь не найден");
@@ -95,5 +92,3 @@ public class UserController {
         return ++currentMaxId;
     }
 }
-
-

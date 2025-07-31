@@ -106,7 +106,7 @@ public class UserControllerTest {
     public void updateUserEmptyBirthdayTest() {
         User user7 = new User();
         user7.setId(8);
-        user7.setEmail("Gde2011_email@");
+        user7.setEmail("Gde2011_email@.com");
         user7.setLogin("745678");
         user7.setName("2543");
         exception = Assertions.assertThrows(ValidationException.class, () -> controller.updateUser(user7));

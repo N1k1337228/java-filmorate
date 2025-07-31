@@ -13,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequestMapping("/films/")
 public class FilmController {
     HashMap<Integer, Film> filmMap = new HashMap<>();
 
@@ -60,13 +60,12 @@ public class FilmController {
             throw new ValidationException("Должно быть указано описание фильма");
         }
         if (filmMap.containsKey(film.getId())) {
-            Film oldVersion = filmMap.get(film.getId());
-            oldVersion.setDescription(film.getDescription());
+            filmMap.put(film.getId(),film);
             log.info("Фильм с именем {} и Id {} успешно обновлён,обновлённое описание: {}",
                     film.getName(), film.getId(), film.getDescription());
             log.debug("Фильм с именем {} и Id {} успешно обновлён,обновлённое описание: {}",
                     film.getName(), film.getId(), film.getDescription());
-            return oldVersion;
+            return film;
         }
         log.error("Фильма с Id {} не был найден", film.getId());
         throw new NotFoundException("Фильм не найден");
