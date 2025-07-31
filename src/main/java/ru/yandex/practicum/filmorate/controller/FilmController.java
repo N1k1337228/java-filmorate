@@ -6,14 +6,14 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/films")
+@RequestMapping("/films/")
 public class FilmController {
     HashMap<Integer, Film> filmMap = new HashMap<>();
 
@@ -34,11 +34,11 @@ public class FilmController {
             log.error("Описание фильма занимает более 200 символов");
             throw new ValidationException("максимальная длина описания — 200 символов");
         }
-        if (film.getReleaseDate().isBefore(LocalDateTime.of(1895, 12, 28, 0, 0))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("введённая дата релиза фильма раньше 1895 года");
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
-        if (film.getDuration().toMinutes() < 0) {
+        if (film.getDuration() < 0) {
             log.error("Продолжительность фильма указана, как отрицательное число");
             throw new ValidationException("продолжительность фильма должна быть положительным числом");
         }

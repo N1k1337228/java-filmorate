@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users/")
 public class UserController {
     HashMap<Integer, User> userMap = new HashMap<>();
 
@@ -40,7 +41,7 @@ public class UserController {
             log.error("Пользователь не указал логин или он содержит пробелы");
             throw new ValidationException("логин не может быть пустым и содержать пробелы");
         }
-        if (user.getBirthday().isAfter(LocalDateTime.now()) || user.getBirthday().isEqual(LocalDateTime.now())) {
+        if (user.getBirthday().isAfter(LocalDate.now()) || user.getBirthday().isEqual(LocalDate.now())) {
             log.error("Дата рождения пользователя указана в будущем");
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
@@ -61,7 +62,7 @@ public class UserController {
             log.error("Пользователь не указал Id");
             throw new ValidationException("Должен быть указан Id пользователя");
         }
-        if (user.getEmail() == null) {
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
             log.error("Пользователь не указал email");
             throw new ValidationException("Должен быть указан email пользователя");
         }
@@ -69,7 +70,7 @@ public class UserController {
             log.error("Пользователь не указал дату рождения");
             throw new ValidationException("Должна быть указана дата рождения пользователя");
         }
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             log.error("Пользователь не указал имя");
             throw new ValidationException("Должно быть указано имя пользователя");
         }
