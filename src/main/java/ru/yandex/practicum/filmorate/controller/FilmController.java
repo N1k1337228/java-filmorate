@@ -13,7 +13,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/films/")
+@RequestMapping("/films")
 public class FilmController {
     HashMap<Integer, Film> filmMap = new HashMap<>();
 
