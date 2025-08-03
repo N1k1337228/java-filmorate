@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    HashMap<Integer, User> userMap = new HashMap<>();
+    private final HashMap<Integer, User> userMap = new HashMap<>();
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -26,6 +26,9 @@ public class UserController {
 
     @PostMapping
     public User createNewUser(@Valid @RequestBody User user) {
+        if (user == null) {
+            throw new ValidationException("");
+        }
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             log.error("Email пользователя не был указан");
             throw new ValidationException("email не может быть пустым");
@@ -51,12 +54,14 @@ public class UserController {
         user.setId(getNextId());
         userMap.put(user.getId(), user);
         log.info("успешно обработан запрос:POST /users, создан пользователь {}", user.getId());
-        log.debug("успешно обработан запрос:POST /users, создан пользователь {}", user.getId());
         return user;
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
+        if (user == null) {
+            throw new ValidationException("");
+        }
         if (user.getId() == null) {
             log.error("Пользователь не указал Id");
             throw new ValidationException("Должен быть указан Id пользователя");
@@ -73,10 +78,13 @@ public class UserController {
             log.error("Пользователь не указал имя");
             throw new ValidationException("Должно быть указано имя пользователя");
         }
+        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+            log.error("пользователь не указал логин или он содержит пробелы");
+            throw new ValidationException("логин не может быть пустым и содержать пробелы");
+        }
         if (userMap.containsKey(user.getId())) {
-            userMap.put(user.getId(),user);
+            userMap.put(user.getId(), user);
             log.info("успешно обработан запрос:PUT /users, успешно обновлён пользователь {}", user.getId());
-            log.debug("успешно обработан запрос:PUT /users, успешно обновлён пользователь {}", user.getId());
             return user;
         }
         log.error("Пользователь с Id {} не был найден", user.getId());

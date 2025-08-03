@@ -1,15 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.Email;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@EqualsAndHashCode(of = {"id", "email", "name", "login"})
+@Data
 public class User {
     private Integer id;
     @Email
