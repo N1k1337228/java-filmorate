@@ -27,7 +27,7 @@ public class UserController {
     @PostMapping
     public User createNewUser(@Valid @RequestBody User user) {
         if (user == null) {
-            throw new ValidationException("");
+            throw new ValidationException("пустое тело запроса");
         }
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
             log.error("Email пользователя не был указан");
@@ -60,7 +60,7 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         if (user == null) {
-            throw new ValidationException("");
+            throw new ValidationException("пустое тело запроса");
         }
         if (user.getId() == null) {
             log.error("Пользователь не указал Id");
