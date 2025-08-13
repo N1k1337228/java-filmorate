@@ -17,11 +17,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Integer, User> userMap = new HashMap<>();
 
-    public List<User> getAllUsers () {
+    public List<User> getAllUsers() {
         return new ArrayList<>(userMap.values());
     }
 
-    public User addUser (User user) {
+    public User addUser(User user) {
         if (user == null) {
             throw new ValidationException("пустое тело запроса");
         }
@@ -53,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public User updateUser (User user) {
+    public User updateUser(User user) {
         if (user == null) {
             throw new ValidationException("пустое тело запроса");
         }
@@ -86,7 +86,7 @@ public class InMemoryUserStorage implements UserStorage {
         throw new NotFoundException("Пользователь не найден");
     }
 
-    public User removeUser (User user) {
+    public User removeUser(User user) {
         if (user == null) {
             log.error("");
             throw new ValidationException("");
@@ -94,7 +94,7 @@ public class InMemoryUserStorage implements UserStorage {
         return userMap.remove(user.getId());
     }
 
-    public User getUserOnId (Integer id) {
+    public User getUserOnId(Integer id) {
         return userMap.get(id);
     }
 
