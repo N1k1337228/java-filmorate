@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-
 import java.util.List;
 
 @Slf4j
@@ -41,17 +40,17 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable Integer id,@PathVariable Integer userId) {
-        return filmService.addLike(id,userId);
+    public Film addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLike(@PathVariable Integer id,@PathVariable Integer userId) {
-        return filmService.removeLike(id,userId);
+    public Film deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        return filmService.removeLike(id, userId);
     }
 
-    @GetMapping("/popular?count={count}")
+    @GetMapping("/popular")
     public List<Film> getMostPopularFilm(@RequestParam Integer count) {
-           return filmService.getMostPopularFilms(count);
+        return filmService.getMostPopularFilms(count);
     }
 }
