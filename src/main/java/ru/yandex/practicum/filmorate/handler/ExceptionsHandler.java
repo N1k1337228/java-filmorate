@@ -13,19 +13,19 @@ public class ExceptionsHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
-    public ErrorResponse ValidationExceptionHandler(ValidationException e) {
+    public ErrorResponse validationExceptionHandler(ValidationException e) {
         return new ErrorResponse("Ошибка валидации данных", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler
-    public ErrorResponse NotFoundExceptionHandler(NotFoundException e) {
+    public ErrorResponse notFoundExceptionHandler(NotFoundException e) {
         return new ErrorResponse("запрашиваемый ресурс не найден", e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler
-    public ErrorResponse NotFoundExceptionHandler(RuntimeException e) {
+    public ErrorResponse notFoundExceptionHandler(RuntimeException e) {
         return new ErrorResponse("возникла ошибка на сервере", e.getMessage());
     }
 }

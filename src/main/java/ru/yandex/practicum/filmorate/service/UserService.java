@@ -54,8 +54,8 @@ public class UserService {
         ArrayList<User> mutualFriends = new ArrayList<>();
         if (firstListFriends.isEmpty() ||
                 secondListFriends.isEmpty()) {
-            log.error("");
-            throw new ValidationException("");
+            log.error("у пользователей пока нет друзей");
+            throw new ValidationException("у пользователей пока нет друзей");
         }
         ArrayList<Integer> smaller;
         ArrayList<Integer> large;
@@ -117,11 +117,11 @@ public class UserService {
 
     public List<User> getUsersFriendList(Integer id) {
         User user = userStorage.getUserOnId(id);
-        HashSet<User> friends = new HashSet<>();
         if (user == null) {
-            log.error("");
-            throw new ValidationException("");
+            log.error("Пользователь не был найден");
+            throw new ValidationException("пользователь не был найден");
         }
+        HashSet<User> friends = new HashSet<>();
         for (Integer userId : user.getFriends()) {
             if (userStorage.getAllUsers().contains(userStorage.getUserOnId(userId))) {
                 friends.add(userStorage.getUserOnId(userId));
