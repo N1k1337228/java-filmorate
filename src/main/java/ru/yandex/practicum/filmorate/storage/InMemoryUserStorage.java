@@ -29,12 +29,10 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Email пользователя не был указан");
             throw new ValidationException("email не может быть пустым");
         }
-
         if (!(user.getEmail().contains("@"))) {
             log.error("Email пользователя не содержит @");
             throw new ValidationException("email не содержит символ: @");
         }
-
         if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             log.error("Пользователь не указал логин или он содержит пробелы");
             throw new ValidationException("логин не может быть пустым и содержать пробелы");

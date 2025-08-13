@@ -91,7 +91,7 @@ public class UserService {
         if (!isFriends(userId, friendId)) {
             user.setFriends(friendId);
             friend.setFriends(userId);
-            return user;
+            return userStorage.updateUser(user);
         }
         throw new ValidationException("Пользователи уже друзья");
     }
@@ -110,7 +110,7 @@ public class UserService {
         if (isFriends(userId, friendId)) {
             friend.removeOnFriend(userId);
             user.removeOnFriend(friendId);
-            return friend;
+            return userStorage.updateUser(user);
         }
         throw new ValidationException("Пользователи не являются друзьями и не могут быть удалены из списка друзей");
     }
