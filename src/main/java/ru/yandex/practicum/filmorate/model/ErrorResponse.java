@@ -8,7 +8,7 @@ public class ErrorResponse {
     private String errorName;
     private String errorDescription;
 
-    public ErrorResponse (String errorName, String errorDescription) {
+    public ErrorResponse(String errorName, String errorDescription) {
         this.errorName = errorName;
         this.errorDescription = errorDescription;
     }
