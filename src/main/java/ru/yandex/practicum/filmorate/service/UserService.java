@@ -82,6 +82,9 @@ public class UserService {
             log.error("передан пустой id");
             throw new ValidationException("Передан пустой id");
         }
+        if (userId.equals(friendId)) {
+            throw new ValidationException("Нельзя добавить себя в друзья");
+        }
         User user = userStorage.getUserOnId(userId);
         User friend = userStorage.getUserOnId(friendId);
         if (user == null || friend == null) {
@@ -91,6 +94,7 @@ public class UserService {
         if (!isFriends(userId, friendId)) {
             user.setFriends(friendId);
             friend.setFriends(userId);
+            userStorage.updateUser(friend);
             return userStorage.updateUser(user);
         }
         throw new ValidationException("Пользователи уже друзья");
@@ -110,6 +114,7 @@ public class UserService {
         if (isFriends(userId, friendId)) {
             friend.removeOnFriend(userId);
             user.removeOnFriend(friendId);
+            userStorage.updateUser(friend);
             return userStorage.updateUser(user);
         }
         throw new ValidationException("Пользователи не являются друзьями и не могут быть удалены из списка друзей");
