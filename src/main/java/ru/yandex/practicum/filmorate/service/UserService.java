@@ -115,16 +115,16 @@ public class UserService {
             friend.removeOnFriend(userId);
             user.removeOnFriend(friendId);
             userStorage.updateUser(friend);
-            return userStorage.updateUser(user);
+            userStorage.updateUser(user);
         }
-        throw new ValidationException("Пользователи не являются друзьями и не могут быть удалены из списка друзей");
+        return user;
     }
 
     public List<User> getUsersFriendList(Integer id) {
         User user = userStorage.getUserOnId(id);
         if (user == null) {
             log.error("Пользователь не был найден");
-            throw new ValidationException("пользователь не был найден");
+            throw new NotFoundException("пользователь не был найден");
         }
         HashSet<User> friends = new HashSet<>();
         for (Integer userId : user.getFriends()) {
