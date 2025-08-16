@@ -18,9 +18,6 @@ public class User {
     private Set<Integer> friends = new HashSet<>();
 
     public void setFriends(Integer friend) {
-        if (friends == null) {
-            friends = new HashSet<>();
-        }
         friends.add(friend);
     }
 

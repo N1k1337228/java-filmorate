@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -12,17 +12,14 @@ public class Film {
     private String name;
     private String description;
     private LocalDate releaseDate;
+    private Set<Integer> usersIdLike = new HashSet<>();
     private Integer likes = 0;
-    private List<Integer> usersIdLike = new ArrayList<>();
     private int duration;
 
     public void setUserOnLikeList(Integer userId) {
-        if (usersIdLike == null) {
-            usersIdLike = new ArrayList<>();
-        }
         if (!usersIdLike.contains(userId)) {
             usersIdLike.add(userId);
-            likes++;
+            likes = usersIdLike.size();
         }
     }
 

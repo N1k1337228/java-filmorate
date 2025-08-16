@@ -85,10 +85,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User removeUser(User user) {
-        if (user == null) {
-            log.error("");
-            throw new ValidationException("");
-        }
         return userMap.remove(user.getId());
     }
 

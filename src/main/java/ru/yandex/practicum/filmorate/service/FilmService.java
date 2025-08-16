@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -27,11 +26,6 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-    private boolean isUserInStorage(Integer id) {
-        User user = userStorage.getUserOnId(id);
-        return userStorage.getAllUsers().contains(user);
-    }
-
     public Film updateFilm(Film film) {
         return filmStorage.updateFilm(film);
     }
@@ -44,12 +38,12 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public Film addLike(Integer idFilm, Integer userId) {
+    public void addLike(Integer idFilm, Integer userId) {
         if (idFilm == null || userId == null) {
             log.error("Полученный id пустые");
             throw new ValidationException("Полученный id пустые");
         }
-        if (!isUserInStorage(userId)) {
+        if (userStorage.getUserOnId(userId) == null) {
             log.error("Неизвестный пользователь пытался поставить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может ставить лайки");
         }
@@ -59,15 +53,15 @@ public class FilmService {
             throw new NotFoundException("фильм не найден");
         }
         film.setUserOnLikeList(userId);
-        return filmStorage.updateFilm(film);
+        filmStorage.updateFilm(film);
     }
 
-    public Film removeLike(Integer idFilm, Integer userId) {
+    public void removeLike(Integer idFilm, Integer userId) {
         if (idFilm == null || userId == null) {
             log.error("полученный id пустые");
             throw new ValidationException("Полученный id пустые");
         }
-        if (!isUserInStorage(userId)) {
+        if (userStorage.getUserOnId(userId) == null) {
             log.error("неизвестный пользователь пытался удалить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может удалять лайки");
         }
@@ -77,18 +71,21 @@ public class FilmService {
             throw new NotFoundException("фильм не найден");
         }
         film.removeUserOnLikeList(userId);
-        return filmStorage.updateFilm(film);
+        filmStorage.updateFilm(film);
     }
 
     public List<Film> getMostPopularFilms(Integer count) {
         Integer countOfFilms = count;
-        if (count == null) {
+        if (count == null || count == 0) {
             countOfFilms = 10;
         }
-        List<Film> allFilms = filmStorage.getAllFilms();
-        if (allFilms.size() < countOfFilms) {
-            countOfFilms = filmStorage.getAllFilms().size();
+        if (countOfFilms < 0) {
+            log.error("Был передан отрицательный count");
+            throw new ValidationException("Нельзя передать отрицательное количество фильмов!");
         }
-        return allFilms.stream().sorted((film1, film2) -> film2.getLikes().compareTo(film1.getLikes())).limit(countOfFilms).collect(Collectors.toList());
+        return filmStorage.getAllFilms().stream()
+                .sorted((film1, film2) -> film2.getLikes().compareTo(film1.getLikes()))
+                .limit(countOfFilms)
+                .collect(Collectors.toList());
     }
 }

@@ -46,36 +46,25 @@ public class UserService {
             throw new NotFoundException("Пользователь не найден");
         }
         if (user.getFriends() == null || other.getFriends() == null) {
-            log.error("у пользователей пока нет друзей");
+            log.error("У пользователей пока нет друзей");
             throw new ValidationException("У пользователей пока нет друзей");
         }
-        ArrayList<Integer> firstListFriends = new ArrayList<>(user.getFriends());
-        ArrayList<Integer> secondListFriends = new ArrayList<>(other.getFriends());
-        ArrayList<User> mutualFriends = new ArrayList<>();
-        if (firstListFriends.isEmpty() ||
-                secondListFriends.isEmpty()) {
-            log.error("у пользователей пока нет друзей");
-            throw new ValidationException("у пользователей пока нет друзей");
+        List<Integer> userFriends = new ArrayList<>(user.getFriends());
+        List<Integer> otherFriends = new ArrayList<>(other.getFriends());
+        if (userFriends.isEmpty() || otherFriends.isEmpty()) {
+            log.error("У пользователей пока нет друзей");
+            throw new ValidationException("У пользователей пока нет друзей");
         }
-        ArrayList<Integer> smaller;
-        ArrayList<Integer> large;
-        if (firstListFriends.size() >= secondListFriends.size()) {
-            smaller = secondListFriends;
-            large = firstListFriends;
-        } else {
-            smaller = firstListFriends;
-            large = secondListFriends;
-        }
-        for (Integer id : smaller) {
-            if (large.contains(id)) {
-                mutualFriends.add(userStorage.getUserOnId(id));
+        userFriends.retainAll(otherFriends);
+        List<User> mutualFriends = new ArrayList<>();
+        for (Integer friendId : userFriends) {
+            User friend = userStorage.getUserOnId(friendId);
+            if (friend != null) {
+                mutualFriends.add(friend);
             }
         }
         return mutualFriends;
     }
-
-    // хотел спросить лучше использовать мой вариант написанный выше или воспользоваться методом retainAll ?
-    // возможно лучше такие вопросы задавать наставнику, но иногда он долго отвечает.
 
     public User addUserToFriends(Integer userId, Integer friendId) {
         if (userId == null || friendId == null) {
