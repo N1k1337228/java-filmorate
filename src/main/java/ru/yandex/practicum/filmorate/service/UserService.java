@@ -74,11 +74,12 @@ public class UserService {
             log.error("пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
         }
-        if (!isFriends(userId, friendId)) {
-            userStorage.getUserOnId(userId).setFriends(friendId);
-            userStorage.getUserOnId(friendId).setFriends(userId);
+        if (isFriends(userId, friendId)) {
+            throw new ValidationException("Пользователи уже друзья");
         }
-        throw new ValidationException("Пользователи уже друзья");
+        userStorage.getUserOnId(userId).setFriends(friendId);
+        userStorage.getUserOnId(friendId).setFriends(userId);
+
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
@@ -90,10 +91,11 @@ public class UserService {
             log.error("пользователь не был найден");
             throw new NotFoundException("Пользователь не был найден");
         }
-        if (isFriends(userId, friendId)) {
-            userStorage.getUserOnId(friendId).removeOnFriend(userId);
-            userStorage.getUserOnId(userId).removeOnFriend(friendId);
+        if (!isFriends(userId, friendId)) {
+            throw new ValidationException("Пользователи не являются друзьями");
         }
+        userStorage.getUserOnId(friendId).removeOnFriend(userId);
+        userStorage.getUserOnId(userId).removeOnFriend(friendId);
     }
 
     public List<User> getUsersFriendList(Integer id) {
