@@ -91,11 +91,10 @@ public class UserService {
             log.error("пользователь не был найден");
             throw new NotFoundException("Пользователь не был найден");
         }
-        if (!isFriends(userId, friendId)) {
-            throw new ValidationException("Пользователи не являются друзьями");
+        if (isFriends(userId, friendId)) {
+            userStorage.getUserOnId(friendId).removeOnFriend(userId);
+            userStorage.getUserOnId(userId).removeOnFriend(friendId);
         }
-        userStorage.getUserOnId(friendId).removeOnFriend(userId);
-        userStorage.getUserOnId(userId).removeOnFriend(friendId);
     }
 
     public List<User> getUsersFriendList(Integer id) {
