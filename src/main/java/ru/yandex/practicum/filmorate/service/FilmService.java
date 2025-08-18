@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,13 +46,11 @@ public class FilmService {
             log.error("Неизвестный пользователь пытался поставить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может ставить лайки");
         }
-        Film film = filmStorage.getFilmOnId(idFilm);
-        if (film == null) {
+        if (filmStorage.getFilmOnId(idFilm) == null) {
             log.error("передан id несуществующего фильма");
             throw new NotFoundException("фильм не найден");
         }
-        film.setUserOnLikeList(userId);
-        filmStorage.updateFilm(film);
+        filmStorage.getFilmOnId(idFilm).setUserOnLikeList(userId);
     }
 
     public void removeLike(Integer idFilm, Integer userId) {
@@ -65,27 +62,21 @@ public class FilmService {
             log.error("неизвестный пользователь пытался удалить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может удалять лайки");
         }
-        Film film = filmStorage.getFilmOnId(idFilm);
-        if (film == null) {
+        if (filmStorage.getFilmOnId(idFilm) == null) {
             log.error("Передан id несуществующего фильма");
             throw new NotFoundException("фильм не найден");
         }
-        film.removeUserOnLikeList(userId);
-        filmStorage.updateFilm(film);
+        filmStorage.getFilmOnId(idFilm).removeUserOnLikeList(userId);
     }
 
     public List<Film> getMostPopularFilms(Integer count) {
-        Integer countOfFilms = count;
-        if (count == null || count == 0) {
-            countOfFilms = 10;
-        }
-        if (countOfFilms < 0) {
+        if (count < 0) {
             log.error("Был передан отрицательный count");
             throw new ValidationException("Нельзя передать отрицательное количество фильмов!");
         }
         return filmStorage.getAllFilms().stream()
                 .sorted((film1, film2) -> film2.getLikes().compareTo(film1.getLikes()))
-                .limit(countOfFilms)
+                .limit(count)
                 .collect(Collectors.toList());
     }
 }

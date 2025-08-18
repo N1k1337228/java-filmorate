@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import java.util.List;
 
 @Slf4j
@@ -50,7 +49,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getMostPopularFilm(@RequestParam Integer count) {
+    public List<Film> getMostPopularFilm(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.getMostPopularFilms(count);
     }
 }

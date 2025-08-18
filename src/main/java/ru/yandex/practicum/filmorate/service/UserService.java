@@ -51,10 +51,6 @@ public class UserService {
         }
         List<Integer> userFriends = new ArrayList<>(user.getFriends());
         List<Integer> otherFriends = new ArrayList<>(other.getFriends());
-        if (userFriends.isEmpty() || otherFriends.isEmpty()) {
-            log.error("У пользователей пока нет друзей");
-            throw new ValidationException("У пользователей пока нет друзей");
-        }
         userFriends.retainAll(otherFriends);
         List<User> mutualFriends = new ArrayList<>();
         for (Integer friendId : userFriends) {
@@ -66,7 +62,7 @@ public class UserService {
         return mutualFriends;
     }
 
-    public User addUserToFriends(Integer userId, Integer friendId) {
+    public void addUserToFriends(Integer userId, Integer friendId) {
         if (userId == null || friendId == null) {
             log.error("передан пустой id");
             throw new ValidationException("Передан пустой id");
@@ -74,39 +70,30 @@ public class UserService {
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить себя в друзья");
         }
-        User user = userStorage.getUserOnId(userId);
-        User friend = userStorage.getUserOnId(friendId);
-        if (user == null || friend == null) {
+        if (userStorage.getUserOnId(userId) == null || userStorage.getUserOnId(friendId) == null) {
             log.error("пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
         }
         if (!isFriends(userId, friendId)) {
-            user.setFriends(friendId);
-            friend.setFriends(userId);
-            userStorage.updateUser(friend);
-            return userStorage.updateUser(user);
+            userStorage.getUserOnId(userId).setFriends(friendId);
+            userStorage.getUserOnId(friendId).setFriends(userId);
         }
         throw new ValidationException("Пользователи уже друзья");
     }
 
-    public User removeFriend(Integer userId, Integer friendId) {
+    public void removeFriend(Integer userId, Integer friendId) {
         if (userId == null || friendId == null) {
             log.error("Был передан пустой id");
             throw new ValidationException("передан пустой id");
         }
-        User user = userStorage.getUserOnId(userId);
-        User friend = userStorage.getUserOnId(friendId);
-        if (user == null || friend == null) {
+        if (userStorage.getUserOnId(userId) == null || userStorage.getUserOnId(friendId) == null) {
             log.error("пользователь не был найден");
             throw new NotFoundException("Пользователь не был найден");
         }
         if (isFriends(userId, friendId)) {
-            friend.removeOnFriend(userId);
-            user.removeOnFriend(friendId);
-            userStorage.updateUser(friend);
-            userStorage.updateUser(user);
+            userStorage.getUserOnId(friendId).removeOnFriend(userId);
+            userStorage.getUserOnId(userId).removeOnFriend(friendId);
         }
-        return user;
     }
 
     public List<User> getUsersFriendList(Integer id) {
