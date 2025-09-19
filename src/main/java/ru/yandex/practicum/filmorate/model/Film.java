@@ -14,6 +14,8 @@ public class Film {
     private Set<Integer> usersIdLike = new HashSet<>();
     private Integer likes = 0;
     private int duration;
+    private  HashSet<String> genreOfFilm;
+    private MPA raiting;
 
     public void setUserOnLikeList(Integer userId) {
         if (!usersIdLike.contains(userId)) {
