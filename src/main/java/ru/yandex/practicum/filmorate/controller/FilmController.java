@@ -1,99 +1,55 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private static final int MAX_LENGTH_DESCRIPTION = 200;
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
-    private final HashMap<Integer, Film> filmMap = new HashMap<>();
+
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Вернул список фильмов");
-        return new ArrayList<>(filmMap.values());
+        return filmService.getAllFilms();
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
-        if (film == null) {
-            throw new ValidationException("пустое тело запроса");
-        }
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.error("Пустая строка/пробел в названии фильма");
-            throw new ValidationException("название не может быть пустым");
-        }
-        if (film.getDescription() == null || film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
-            log.error("Описание фильма занимает более 200 символов");
-            throw new ValidationException("максимальная длина описания — 200 символов");
-        }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            log.error("введённая дата релиза фильма раньше 1895 года");
-            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() <= 0) {
-            log.error("Продолжительность фильма указана, как отрицательное число");
-            throw new ValidationException("продолжительность фильма должна быть положительным числом");
-        }
-        film.setId(getNextId());
-        filmMap.put(film.getId(), film);
-        log.info("Добавлен фильм {}", film.getName());
-        return film;
+        return filmService.addNewFilm(film);
+
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        if (film == null) {
-            throw new ValidationException("пустое тело запроса");
-        }
-        if (film.getId() == null) {
-            log.error("Не указан Id фильма");
-            throw new ValidationException("Должен быть указан Id фильма");
-        }
-        if (film.getDescription() == null || film.getDescription().isBlank() ||
-                film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
-            log.error("Не указано описание фильма");
-            throw new ValidationException("Должно быть указано описание фильма");
-        }
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.error("пустая строка/пробел в названии фильма");
-            throw new ValidationException("название не может быть пустым");
-        }
-        if (film.getDuration() <= 0) {
-            log.error("продолжительность фильма указана, как отрицательное число");
-            throw new ValidationException("продолжительность фильма должна быть положительным числом");
-        }
-        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
-            log.error("Введённая дата релиза фильма раньше 1895 года");
-            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (filmMap.containsKey(film.getId())) {
-            filmMap.put(film.getId(), film);
-            log.info("Фильм с именем {} и Id {}",
-                    film.getName(), film.getId());
-            return film;
-        }
-        log.error("Фильма с Id {} не был найден", film.getId());
-        throw new NotFoundException("Фильм не найден");
+        return filmService.updateFilm(film);
     }
 
-    private int getNextId() {
-        int currentMaxId = filmMap.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostPopularFilm(@RequestParam(defaultValue = "10") Integer count) {
+        return filmService.getMostPopularFilms(count);
     }
 }
