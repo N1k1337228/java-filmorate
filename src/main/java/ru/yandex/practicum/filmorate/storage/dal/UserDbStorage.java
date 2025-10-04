@@ -66,7 +66,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    public void addUserToFriends (Integer userId, Integer friendId) {
+    public void addUserToFriends(Integer userId, Integer friendId) {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM users " +
                 "WHERE id IN (?,?)",Integer.class,userId,friendId);
         if (count == null || count != 2) {
@@ -87,7 +87,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public void deleteUserFromFriend (Integer userId, Integer friendId) {
+    public void deleteUserFromFriend(Integer userId, Integer friendId) {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM users " +
                 "WHERE id IN (?,?)",Integer.class,userId,friendId);
         if (count == null || count != 2) {
@@ -106,7 +106,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    public List<User> getListFriendsOnUsersId (Integer userId) {
+    public List<User> getListFriendsOnUsersId(Integer userId) {
         Integer countOfUsers = jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE id=?",Integer.class,userId);
         if (countOfUsers == null || countOfUsers == 0) {
             throw new NotFoundException("Пользователь не найден");
