@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import java.util.List;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class FilmController {
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Вернул список фильмов");
-        return filmService.getAllFilms();
+        return filmService.getAllFilmsDb();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -33,8 +34,10 @@ public class FilmController {
 
     }
 
+
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
+
         return filmService.updateFilm(film);
     }
 
@@ -50,6 +53,6 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getMostPopularFilm(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getMostPopularFilms(count);
+        return filmService.getMostPopularFilmsDb(count);
     }
 }

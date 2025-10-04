@@ -2,11 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.dal.UserDbStorage;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,18 +18,27 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final UserDbStorage dbStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("inMemoryUserStorage") UserStorage userStorage,
+                       @Qualifier("userDbStorage") UserDbStorage dbStorage) {
         this.userStorage = userStorage;
+        this.dbStorage = dbStorage;
     }
 
     public User createNewUser(User user) {
+        dbStorage.addUser(user);
         return userStorage.addUser(user);
     }
 
     public User updateUser(User user) {
+        dbStorage.updateUser(user);
         return userStorage.updateUser(user);
+    }
+
+    public List<User> getAllUsersDb() {
+        return dbStorage.getAllUsers();
     }
 
     public List<User> getAllUsers() {
@@ -61,11 +73,20 @@ public class UserService {
         return mutualFriends;
     }
 
+    public List<User> getCommonFriendsDb(Integer userId, Integer otherId) {
+        if (userId == null || otherId == null) {
+            log.error("Передан пустой id");
+            throw new ValidationException("Передан пустой id");
+        }
+        return dbStorage.getCommonFriends(userId, otherId);
+    }
+
     public void addUserToFriends(Integer userId, Integer friendId) {
         if (userId == null || friendId == null) {
             log.error("передан пустой id");
             throw new ValidationException("Передан пустой id");
         }
+        dbStorage.addUserToFriends(userId, friendId);
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить себя в друзья");
         }
@@ -76,9 +97,8 @@ public class UserService {
         if (isFriends(userId, friendId)) {
             throw new ValidationException("Пользователи уже друзья");
         }
-        userStorage.getUserOnId(userId).setFriends(friendId);
-        userStorage.getUserOnId(friendId).setFriends(userId);
-
+        userStorage.getUserOnId(userId).setFriend(friendId);
+        userStorage.getUserOnId(friendId).setFriend(userId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
@@ -86,6 +106,7 @@ public class UserService {
             log.error("Был передан пустой id");
             throw new ValidationException("передан пустой id");
         }
+        dbStorage.deleteUserFromFriend(userId, friendId);
         if (userStorage.getUserOnId(userId) == null || userStorage.getUserOnId(friendId) == null) {
             log.error("пользователь не был найден");
             throw new NotFoundException("Пользователь не был найден");
@@ -94,6 +115,14 @@ public class UserService {
             userStorage.getUserOnId(friendId).removeOnFriend(userId);
             userStorage.getUserOnId(userId).removeOnFriend(friendId);
         }
+    }
+
+    public List<User> getUsersFriendsDb(Integer id) {
+        if (id != null) {
+            return dbStorage.getListFriendsOnUsersId(id);
+        }
+        log.error("Был передан пустой id");
+        throw new ValidationException("передан пустой id");
     }
 
     public List<User> getUsersFriendList(Integer id) {

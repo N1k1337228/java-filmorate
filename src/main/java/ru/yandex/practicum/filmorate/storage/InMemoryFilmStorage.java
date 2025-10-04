@@ -83,12 +83,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film removeFilm(Film film) {
-        if (film == null) {
+    public void removeFilm(Integer filmId) {
+        if (filmId == null) {
             log.error("");
             throw new ValidationException("");
         }
-        return filmMap.remove(film.getId());
+        filmMap.remove(filmId);
     }
 
     @Override

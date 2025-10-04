@@ -26,14 +26,13 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         log.info("успешно обработан запрос:GET /users,возвращен список пользователей");
-        return userService.getAllUsers();
+        return userService.getAllUsersDb();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User createNewUser(@Valid @RequestBody User user) {
         return userService.createNewUser(user);
-
     }
 
     @PutMapping
@@ -49,16 +48,15 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFromFriendsList(@PathVariable("id") Integer userId, @PathVariable Integer friendId) {
         userService.removeFriend(userId, friendId);
-
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getUsersFriendList(@PathVariable("id") Integer userId) {
-        return userService.getUsersFriendList(userId);
+        return userService.getUsersFriendsDb(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
-        return userService.getMutualFriends(userId, otherId);
+        return userService.getCommonFriendsDb(userId, otherId);
     }
 }

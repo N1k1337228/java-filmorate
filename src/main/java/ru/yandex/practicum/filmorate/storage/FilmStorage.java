@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    Film removeFilm(Film film);
+    void removeFilm(Integer filmId);
 
     List<Film> getAllFilms();
 
