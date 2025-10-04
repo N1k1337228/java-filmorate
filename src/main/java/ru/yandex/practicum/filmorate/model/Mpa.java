@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import java.util.Arrays;
 import java.util.List;
 
-public enum MPA {
+public enum Mpa {
     G(1, "G — General Audiences"),
     PG(2, "PG — Parental Guidance Suggested"),
     PG_13(3, "PG-13 — Parents Strongly Cautioned"),
@@ -15,7 +15,7 @@ public enum MPA {
     private final int id;
     private final String name;
 
-     MPA(int id, String name) {
+     Mpa(int id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -28,12 +28,12 @@ public enum MPA {
         return name;
     }
 
-    public static List<MPA> getAll() {
+    public static List<Mpa> getAll() {
         return Arrays.asList(values());
     }
 
-    public static MPA getById(int id) {
-        for (MPA mpa : values()) {
+    public static Mpa getById(int id) {
+        for (Mpa mpa : values()) {
             if (mpa.id == id) {
                 return mpa;
             }
