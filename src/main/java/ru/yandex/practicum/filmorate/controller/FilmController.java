@@ -25,26 +25,22 @@ public class FilmController {
     public List<Film> getAllFilms() {
         log.info("Вернул список фильмов");
         return filmService.getAllFilmsDb();
-
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmService.addNewFilm(film);
-
     }
-    
+
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film);
-
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.addLike(id, userId);
-
     }
 
     @DeleteMapping("/{id}/like/{userId}")
