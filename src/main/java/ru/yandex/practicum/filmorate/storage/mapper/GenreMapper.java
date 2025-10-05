@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.mapper;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Genre;
 
@@ -10,7 +9,6 @@ import java.sql.SQLException;
 
 @RequiredArgsConstructor
 public class GenreMapper implements RowMapper<Genre> {
-    private static JdbcTemplate jdbc;
 
     @Override
     public Genre mapRow(ResultSet rs, int intRow) throws SQLException {

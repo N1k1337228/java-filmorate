@@ -24,10 +24,10 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbc;
     private final String addUserQuery = "INSERT INTO users VALUES (?,?,?,?,?)";
-    private  final String updateUserQuery = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?";
-    private  final String deleteUserQuery = "DELETE FROM users WHERE id=?";
-    private  final String allUsersQuery = "SELECT * FROM users";
-    private  final String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
+    private final String updateUserQuery = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?";
+    private final String deleteUserQuery = "DELETE FROM users WHERE id=?";
+    private final String allUsersQuery = "SELECT * FROM users";
+    private final String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
 
     public User addUser(User user) {
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
@@ -58,10 +58,10 @@ public class UserDbStorage implements UserStorage {
             user.setId(nextId);
         }
         try {
-            jdbc.queryForObject("SELECT id FROM users WHERE id=?",Integer.class,user.getId());
+            jdbc.queryForObject("SELECT id FROM users WHERE id=?", Integer.class, user.getId());
 
         } catch (EmptyResultDataAccessException e) {
-            jdbc.update(addUserQuery,user.getId(),user.getEmail(),user.getLogin(),user.getName(),user.getBirthday());
+            jdbc.update(addUserQuery, user.getId(), user.getEmail(), user.getLogin(), user.getName(), user.getBirthday());
         }
         return user;
     }
@@ -90,23 +90,23 @@ public class UserDbStorage implements UserStorage {
             log.error("пользователь не указал логин или он содержит пробелы");
             throw new ValidationException("логин не может быть пустым и содержать пробелы");
         }
-        int count = jdbc.update(updateUserQuery,user.getEmail(),user.getLogin(),user.getName(),user.getBirthday(),user.getId());
+        int count = jdbc.update(updateUserQuery, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         if (count > 0) {
-            return  user;
+            return user;
         }
-        throw  new NotFoundException("Пользователь не найден");
+        throw new NotFoundException("Пользователь не найден");
     }
 
     public User removeUser(User user) {
-       int count = jdbc.update(deleteUserQuery,user.getId());
-       if (count > 0) {
-           return user;
-       }
-        throw  new NotFoundException("Пользователь не найден");
+        int count = jdbc.update(deleteUserQuery, user.getId());
+        if (count > 0) {
+            return user;
+        }
+        throw new NotFoundException("Пользователь не найден");
     }
 
     public List<User> getAllUsers() {
-        List<User> users = jdbc.query(allUsersQuery,new UserMapper());
+        List<User> users = jdbc.query(allUsersQuery, new UserMapper());
         if (users.isEmpty()) {
             throw new NotFoundException("Пользователь не найден");
         }
@@ -114,25 +114,25 @@ public class UserDbStorage implements UserStorage {
     }
 
     public User getUserOnId(Integer id) {
-        User user = jdbc.queryForObject(findUserOnIdQuery,new UserMapper(),id);
+        User user = jdbc.queryForObject(findUserOnIdQuery, new UserMapper(), id);
         user.setFriends(new HashSet<Integer>(jdbc.queryForList("SELECT friend_id FROM users AS u INNER JOIN friendship AS f ON " +
-                "f.user_id = u.id WHERE u.id = ?",Integer.class,id)));
+                "f.user_id = u.id WHERE u.id = ?", Integer.class, id)));
         return user;
     }
 
     public void addUserToFriends(Integer userId, Integer friendId) {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM users " +
-                "WHERE id IN (?,?)",Integer.class,userId,friendId);
+                "WHERE id IN (?,?)", Integer.class, userId, friendId);
         if (count == null || count != 2) {
             throw new NotFoundException("Нет пользователей для добавления в друзья");
         }
         Integer countUserToFriend = jdbc.queryForObject("SELECT COUNT(*) FROM " +
-                "friendship WHERE user_id = ? AND friend_id = ?",Integer.class, userId, friendId);
+                "friendship WHERE user_id = ? AND friend_id = ?", Integer.class, userId, friendId);
         if (countUserToFriend == null || countUserToFriend == 0) {
             jdbc.update("INSERT INTO friendship (user_id,friend_id) VALUES(?,?)", userId, friendId);
         }
         Integer countFriendToUser = jdbc.queryForObject("SELECT COUNT(*) FROM users AS u INNER JOIN friendship AS ul ON u.id = ul.user_id " +
-                "WHERE user_id = ? AND friend_id = ?",Integer.class, friendId, userId);
+                "WHERE user_id = ? AND friend_id = ?", Integer.class, friendId, userId);
         if (countFriendToUser != null && countFriendToUser > 0) {
             jdbc.update("UPDATE friendship SET status = 'CONFIRMED' " +
                     "WHERE user_id = ? AND friend_id = ?", userId, friendId);
@@ -143,17 +143,17 @@ public class UserDbStorage implements UserStorage {
 
     public void deleteUserFromFriend(Integer userId, Integer friendId) {
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM users " +
-                "WHERE id IN (?,?)",Integer.class,userId,friendId);
+                "WHERE id IN (?,?)", Integer.class, userId, friendId);
         if (count == null || count != 2) {
             throw new NotFoundException("Нет пользователей для добавления в друзья");
         }
         Integer countUserToFriend = jdbc.queryForObject("SELECT COUNT(*) FROM " +
-                "friendship WHERE user_id = ? AND friend_id = ?",Integer.class, userId, friendId);
+                "friendship WHERE user_id = ? AND friend_id = ?", Integer.class, userId, friendId);
         if (countUserToFriend != null && countUserToFriend > 0) {
             jdbc.update("DELETE FROM friendship WHERE user_id = ? AND friend_id = ?", userId, friendId);
         }
         Integer countFriendToUser = jdbc.queryForObject("SELECT COUNT(*) FROM friendship " +
-                "WHERE user_id = ? AND friend_id = ?",Integer.class, friendId, userId);
+                "WHERE user_id = ? AND friend_id = ?", Integer.class, friendId, userId);
         if (countFriendToUser != null && countFriendToUser > 0) {
             jdbc.update("UPDATE friendship SET status = 'PENDING' " +
                     "WHERE user_id = ? AND friend_id = ?", friendId, userId);
@@ -161,7 +161,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public List<User> getListFriendsOnUsersId(Integer userId) {
-        Integer countOfUsers = jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE id=?",Integer.class,userId);
+        Integer countOfUsers = jdbc.queryForObject("SELECT COUNT(*) FROM users WHERE id=?", Integer.class, userId);
         if (countOfUsers == null || countOfUsers == 0) {
             throw new NotFoundException("Пользователь не найден");
         }

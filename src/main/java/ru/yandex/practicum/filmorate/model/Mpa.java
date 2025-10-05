@@ -12,10 +12,10 @@ public enum Mpa {
     R(4, "R"),
     NC_17(5, "NC-17");
 
-    private final int id;
+    private final Integer id;
     private final String name;
 
-    Mpa(int id, String name) {
+    Mpa(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -24,9 +24,9 @@ public enum Mpa {
         return Arrays.asList(values());
     }
 
-    public static Mpa getById(int id) {
+    public static Mpa getById(Integer id) {
         for (Mpa mpa : values()) {
-            if (mpa.id == id) {
+            if (mpa.id.equals(id)) {
                 return mpa;
             }
         }
@@ -42,7 +42,7 @@ public enum Mpa {
         throw new IllegalArgumentException("No enum constant for: " + name);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

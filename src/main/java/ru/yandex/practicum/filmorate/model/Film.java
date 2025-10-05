@@ -18,7 +18,7 @@ public class Film {
     private Integer likes = 0;
     private int duration;
     private List<Genre> genreOfFilm = new ArrayList<>();
-    private Mpa raiting;
+    private Mpa rating;
 
     public void setUserOnLikeList(Integer userId) {
         if (!usersIdLike.contains(userId)) {

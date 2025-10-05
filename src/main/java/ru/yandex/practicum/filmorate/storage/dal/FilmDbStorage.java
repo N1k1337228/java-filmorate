@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
@@ -36,6 +37,13 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
         }
+        if (film.getRating() == null) {
+            throw new ValidationException("Передан пустой MPA");
+        }
+        if (film.getRating().getId() != null && film.getRating().getName() == null) {
+            Mpa fullMpa = Mpa.getById(film.getRating().getId());
+            film.setRating(fullMpa);
+        }
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Пустая строка/пробел в названии фильма");
             throw new ValidationException("название не может быть пустым");
@@ -60,13 +68,20 @@ public class FilmDbStorage implements FilmStorage {
             film.setId(nextId);
         }
         jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getLikes(), film.getDuration(), film.getRaiting().getName());
+                film.getLikes(), film.getDuration(), film.getRating().getName());
         return film;
     }
 
     public Film updateFilm(Film film) {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
+        }
+        if (film.getRating() == null) {
+            throw new ValidationException("Передан пустой MPA");
+        }
+        if (film.getRating().getId() != null && film.getRating().getName() == null) {
+            Mpa fullMpa = Mpa.getById(film.getRating().getId());
+            film.setRating(fullMpa);
         }
         if (film.getId() == null) {
             log.error("Не указан Id фильма");
@@ -90,7 +105,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
-                film.getDuration(), film.getRaiting().getName(), film.getId());
+                film.getDuration(), film.getRating().getName(), film.getId());
         return film;
     }
 
