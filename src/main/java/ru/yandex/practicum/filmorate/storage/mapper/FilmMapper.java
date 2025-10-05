@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ public class FilmMapper implements RowMapper<Film> {
         film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         film.setLikes(rs.getInt("likes_count"));
         film.setDuration(rs.getInt("duration"));
-        film.setRaiting(rs.getString("rating"));
+        film.setRaiting(Mpa.valueOf(rs.getString("rating")));
         return film;
     }
 }

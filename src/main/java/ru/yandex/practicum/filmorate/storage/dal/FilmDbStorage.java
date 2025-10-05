@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
@@ -146,10 +147,10 @@ public class FilmDbStorage implements FilmStorage {
             return films;
         }
         Map<Integer, Set<Integer>> likesByFilm = getAllLikes();
-        Map<Integer, Set<String>> genresByFilm = getAllGenres();
+        Map<Integer, List<Genre>> genresByFilm = getAllGenres();
         for (Film film : films) {
             film.setUsersIdLike(likesByFilm.getOrDefault(film.getId(), Set.of()));
-            film.setGenreOfFilm(genresByFilm.getOrDefault(film.getId(), Set.of()));
+            film.setGenreOfFilm(genresByFilm.getOrDefault(film.getId(), List.of()));
         }
         return films;
     }
@@ -169,23 +170,26 @@ public class FilmDbStorage implements FilmStorage {
         );
     }
 
-    private Map<Integer, Set<String>> getAllGenres() {
+    private Map<Integer, List<Genre>> getAllGenres() {
         return jdbc.query(
-                "SELECT fg.film_id, g.name AS genre_name " +
+                "SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name " +
                         "FROM film_genre fg " +
                         "JOIN genre g ON fg.genre_id = g.id",
                 rs -> {
-                    Map<Integer, Set<String>> map = new HashMap<>();
+                    Map<Integer, List<Genre>> map = new HashMap<>();
                     while (rs.next()) {
                         int filmId = rs.getInt("film_id");
+                        int genreId = rs.getInt("genre_id");
                         String genreName = rs.getString("genre_name");
-
-                        Set<String> genres = map.get(filmId);
+                        Genre genre = new Genre();
+                        genre.setId(genreId);
+                        genre.setName(genreName);
+                        List<Genre> genres = map.get(filmId);
                         if (genres == null) {
-                            genres = new HashSet<>();
+                            genres = new ArrayList<>();  // ← ArrayList вместо HashSet
                             map.put(filmId, genres);
                         }
-                        genres.add(genreName);
+                        genres.add(genre);
                     }
                     return map;
                 }
