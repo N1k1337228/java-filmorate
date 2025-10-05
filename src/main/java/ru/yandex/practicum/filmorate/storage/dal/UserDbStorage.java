@@ -29,6 +29,13 @@ public class UserDbStorage implements UserStorage {
     private  final String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
 
     public User addUser(User user) {
+        if (user.getId() == null) {
+            Integer nextId = jdbc.queryForObject(
+                    "SELECT COALESCE(MAX(id), 0) + 1 FROM users",
+                    Integer.class
+            );
+            user.setId(nextId);
+        }
         try {
             jdbc.queryForObject("SELECT id FROM users WHERE id=?",Integer.class,user.getId());
 

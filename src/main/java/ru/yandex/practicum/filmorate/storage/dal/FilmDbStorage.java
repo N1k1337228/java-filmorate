@@ -18,21 +18,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbc;
-    private final String insertNewFilm = "INSERT INTO films VALUES (?,?,?,?,?,?,?)";
+    private final String insertNewFilm = "INSERT INTO films (id, title, description, release_date, likes_count, " +
+            "duration, rating) VALUES (?,?,?,?,?,?,?)";
     private final String updateFilm = "UPDATE films SET title=?, description=?, release_date=?, likes_count=?, " +
-            "duration=?, rating=?";
+            "duration=?, rating=? WHERE id = ?";
     private final String deleteFilm = "DELETE FROM films WHERE id = ?";
     private final String findFilmOnId = "SELECT * FROM films WHERE id = ?";
 
     public Film addFilm(Film film) {
-        jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
+        if (film.getId() == null) {
+            Integer nextId = jdbc.queryForObject(
+                    "SELECT COALESCE(MAX(id), 0) + 1 FROM films",
+                    Integer.class
+            );
+            film.setId(nextId);
+        }
+        jdbc.update(insertNewFilm,film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getLikes(), film.getDuration(), film.getRaiting());
         return film;
     }
 
     public Film updateFilm(Film film) {
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
-                film.getDuration(), film.getRaiting());
+                film.getDuration(), film.getRaiting(), film.getId());
         return film;
     }
 

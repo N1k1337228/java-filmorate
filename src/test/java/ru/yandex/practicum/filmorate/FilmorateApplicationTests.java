@@ -62,6 +62,7 @@ class FilmorateApplicationTests {
         film1.setDuration(121);
         film1.setReleaseDate(LocalDate.of(2001, 1, 1));
         film1.setRaiting("PG-13");
+
         film2 = new Film();
         film2.setId(2);
         film2.setName("Film2");
@@ -69,11 +70,11 @@ class FilmorateApplicationTests {
         film2.setDuration(122);
         film2.setReleaseDate(LocalDate.of(2002, 2, 2));
         film2.setRaiting("PG-13");
+
     }
 
     @Test
     public void testFindUserById() {
-
         User user = userStorage.getUserOnId(1);
         assertThat(user).isNotNull();
         assertThat(user.getId()).isEqualTo(1);
@@ -108,14 +109,13 @@ class FilmorateApplicationTests {
     @Test
     public void testAddUser() {
         User user3 = new User();
-        user3.setId(3);
         user3.setName("Gde3");
         user3.setEmail("Gde3_email@");
         user3.setBirthday(LocalDate.of(2003, 2, 2));
         user3.setLogin("Gde228_1337_3");
         userStorage.addUser(user3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM users " +
-                "WHERE id = ?", Integer.class, user3.getId());
+                "WHERE id = ?", Integer.class, 3);
         Assertions.assertNotNull(count);
         Assertions.assertEquals(1, count);
     }
@@ -178,7 +178,6 @@ class FilmorateApplicationTests {
     @Test
     public void testAddFilm() {
         Film film3 = new Film();
-        film3.setId(3);
         film3.setName("Film3");
         film3.setDescription("description3");
         film3.setDuration(123);
@@ -186,7 +185,7 @@ class FilmorateApplicationTests {
         film3.setRaiting("G");
         filmStorage.addFilm(film3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM films " +
-                "WHERE id = ?", Integer.class, film3.getId());
+                "WHERE id = ?", Integer.class, 3);
         Assertions.assertNotNull(count);
         Assertions.assertEquals(1, count);
     }
