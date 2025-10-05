@@ -63,7 +63,7 @@ public class UserService {
         return mutualFriends;
     }
 
-    public User getUserOnId (Integer id) {
+    public User getUserOnId(Integer id) {
         if (id == null) {
             log.error("Передан пустой id");
             throw new ValidationException("Пустой id пользователя");

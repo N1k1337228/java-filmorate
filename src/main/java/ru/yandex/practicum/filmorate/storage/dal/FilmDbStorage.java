@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @Qualifier("filmDbStorage")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
+    private static final int MAX_LENGTH_DESCRIPTION = 200;
+    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private final JdbcTemplate jdbc;
     private final String insertNewFilm = "INSERT INTO films (id, title, description, release_date, likes_count, " +
             "duration, rating) VALUES (?,?,?,?,?,?,?)";
@@ -28,8 +30,6 @@ public class FilmDbStorage implements FilmStorage {
             "duration=?, rating=? WHERE id = ?";
     private final String deleteFilm = "DELETE FROM films WHERE id = ?";
     private final String findFilmOnId = "SELECT * FROM films WHERE id = ?";
-    private static final int MAX_LENGTH_DESCRIPTION = 200;
-    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public Film addFilm(Film film) {
         if (film == null) {

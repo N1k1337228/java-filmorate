@@ -65,7 +65,7 @@ public class FilmService {
         filmStorage.removeLike(idFilm, userId);
     }
 
-    public Film getFilmOnId (Integer id) {
+    public Film getFilmOnId(Integer id) {
         if (id == null) {
             log.error("полученный id фильма пустой");
             throw new ValidationException("Полученный id фильма пустой");

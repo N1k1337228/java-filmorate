@@ -15,17 +15,9 @@ public enum Mpa {
     private final int id;
     private final String name;
 
-     Mpa(int id, String name) {
+    Mpa(int id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public static List<Mpa> getAll() {
@@ -39,6 +31,14 @@ public enum Mpa {
             }
         }
         throw new ValidationException("MPA с id=" + id + " не найден");
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 }
 
