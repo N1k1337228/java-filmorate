@@ -1,18 +1,22 @@
 package ru.yandex.practicum.filmorate.storage.dal;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Repository
 @Qualifier("filmDbStorage")
 @RequiredArgsConstructor
@@ -24,8 +28,29 @@ public class FilmDbStorage implements FilmStorage {
             "duration=?, rating=? WHERE id = ?";
     private final String deleteFilm = "DELETE FROM films WHERE id = ?";
     private final String findFilmOnId = "SELECT * FROM films WHERE id = ?";
+    private static final int MAX_LENGTH_DESCRIPTION = 200;
+    private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
     public Film addFilm(Film film) {
+        if (film == null) {
+            throw new ValidationException("пустое тело запроса");
+        }
+        if (film.getName() == null || film.getName().isBlank()) {
+            log.error("Пустая строка/пробел в названии фильма");
+            throw new ValidationException("название не может быть пустым");
+        }
+        if (film.getDescription() == null || film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
+            log.error("Описание фильма занимает более 200 символов");
+            throw new ValidationException("максимальная длина описания — 200 символов");
+        }
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            log.error("введённая дата релиза фильма раньше 1895 года");
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+        }
+        if (film.getDuration() <= 0) {
+            log.error("Продолжительность фильма указана, как отрицательное число");
+            throw new ValidationException("продолжительность фильма должна быть положительным числом");
+        }
         if (film.getId() == null) {
             Integer nextId = jdbc.queryForObject(
                     "SELECT COALESCE(MAX(id), 0) + 1 FROM films",
@@ -33,12 +58,36 @@ public class FilmDbStorage implements FilmStorage {
             );
             film.setId(nextId);
         }
-        jdbc.update(insertNewFilm,film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
+        jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getLikes(), film.getDuration(), film.getRaiting());
         return film;
     }
 
     public Film updateFilm(Film film) {
+        if (film == null) {
+            throw new ValidationException("пустое тело запроса");
+        }
+        if (film.getId() == null) {
+            log.error("Не указан Id фильма");
+            throw new ValidationException("Должен быть указан Id фильма");
+        }
+        if (film.getDescription() == null || film.getDescription().isBlank() ||
+                film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
+            log.error("Не указано описание фильма");
+            throw new ValidationException("Должно быть указано описание фильма");
+        }
+        if (film.getName() == null || film.getName().isBlank()) {
+            log.error("пустая строка/пробел в названии фильма");
+            throw new ValidationException("название не может быть пустым");
+        }
+        if (film.getDuration() <= 0) {
+            log.error("продолжительность фильма указана, как отрицательное число");
+            throw new ValidationException("продолжительность фильма должна быть положительным числом");
+        }
+        if (film.getReleaseDate() == null || film.getReleaseDate().isBefore(MIN_RELEASE_DATE)) {
+            log.error("Введённая дата релиза фильма раньше 1895 года");
+            throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
+        }
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
                 film.getDuration(), film.getRaiting(), film.getId());
         return film;

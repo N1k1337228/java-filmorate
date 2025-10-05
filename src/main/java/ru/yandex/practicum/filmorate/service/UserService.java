@@ -63,6 +63,14 @@ public class UserService {
         return mutualFriends;
     }
 
+    public User getUserOnId (Integer id) {
+        if (id == null) {
+            log.error("Передан пустой id");
+            throw new ValidationException("Пустой id пользователя");
+        }
+        return userStorage.getUserOnId(id);
+    }
+
     public void addUserToFriends(Integer userId, Integer friendId) {
         if (userId == null || friendId == null) {
             log.error("передан пустой id");
@@ -81,7 +89,7 @@ public class UserService {
 
     public List<User> getUsersFriendList(Integer id) {
         if (id != null) {
-            userStorage.getListFriendsOnUsersId(id);
+            return userStorage.getListFriendsOnUsersId(id);
         }
         log.error("Был передан пустой id");
         throw new ValidationException("передан пустой id");

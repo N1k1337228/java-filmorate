@@ -59,4 +59,10 @@ public class UserController {
     public List<User> getMutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
         return userService.getMutualFriends(userId, otherId);
     }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        log.info("Получен пользователь с ID: {}", id);
+        return userService.getUserOnId(id);
+    }
 }
