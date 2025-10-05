@@ -6,11 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public enum Mpa {
-    G(1, "G — General Audiences"),
-    PG(2, "PG — Parental Guidance Suggested"),
-    PG_13(3, "PG-13 — Parents Strongly Cautioned"),
-    R(4, "R — Restricted"),
-    NC_17(5, "NC-17 — Adults Only");
+    G(1, "G"),
+    PG(2, "PG"),
+    PG_13(3, "PG-13"),
+    R(4, "R"),
+    NC_17(5, "NC-17");
 
     private final int id;
     private final String name;
@@ -31,6 +31,15 @@ public enum Mpa {
             }
         }
         throw new ValidationException("MPA с id=" + id + " не найден");
+    }
+
+    public static Mpa fromString(String name) {
+        for (Mpa mpa : values()) {
+            if (mpa.name.equals(name)) {
+                return mpa;
+            }
+        }
+        throw new IllegalArgumentException("No enum constant for: " + name);
     }
 
     public int getId() {

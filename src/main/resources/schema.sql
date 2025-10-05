@@ -13,7 +13,7 @@ CREATE TABLE films (
     release_date date NOT NULL,
     likes_count integer DEFAULT 0,
     duration integer,
-    rating varchar(20),
+    rating varchar(25),
     CONSTRAINT empty_title CHECK title <> ''
 );
 
@@ -53,8 +53,8 @@ INSERT INTO users (id, name, email, login, birthday) VALUES
 (2, 'Gde2', 'Gde2_email@', 'Gde228_1337_2', '2002-02-02');
 
 INSERT INTO films (id, title, description, release_date,duration,rating)
-VALUES (1,'Film1','description1','2001-01-01',121,'"PG-13'),
-(2,'Film2','description2','2002-02-02',122,'"PG-13');
+VALUES (1,'Film1','description1','2001-01-01',121,'PG-13'),
+(2,'Film2','description2','2002-02-02',122,'PG-13');
 
 INSERT INTO genre (id, name)
 VALUES (1, 'genre1'),

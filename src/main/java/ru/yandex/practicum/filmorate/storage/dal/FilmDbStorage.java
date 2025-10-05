@@ -60,7 +60,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setId(nextId);
         }
         jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getLikes(), film.getDuration(), film.getRaiting());
+                film.getLikes(), film.getDuration(), film.getRaiting().getName());
         return film;
     }
 
@@ -90,7 +90,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
-                film.getDuration(), film.getRaiting(), film.getId());
+                film.getDuration(), film.getRaiting().getName(), film.getId());
         return film;
     }
 
