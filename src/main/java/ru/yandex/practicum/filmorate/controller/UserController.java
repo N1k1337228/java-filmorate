@@ -62,7 +62,6 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Integer id) {
-        log.info("Получен пользователь с ID: {}", id);
         return userService.getUserOnId(id);
     }
 }
