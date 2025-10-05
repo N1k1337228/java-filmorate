@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.dal;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
@@ -15,15 +17,16 @@ import java.util.*;
 
 @Slf4j
 @Repository
+@Qualifier("UserDbStorage")
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbc;
-    private static String addUserQuery = "INSERT INTO users VALUES (?,?,?,?,?)";
-    private static String updateUserQuery = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?";
-    private static String deleteUserQuery = "DELETE FROM users WHERE id=?";
-    private static String allUsersQuery = "SELECT * FROM users";
-    private static String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
+    private final String addUserQuery = "INSERT INTO users VALUES (?,?,?,?,?)";
+    private  final String updateUserQuery = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?";
+    private  final String deleteUserQuery = "DELETE FROM users WHERE id=?";
+    private  final String allUsersQuery = "SELECT * FROM users";
+    private  final String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
 
     public User addUser(User user) {
         try {
@@ -36,6 +39,14 @@ public class UserDbStorage implements UserStorage {
     }
 
     public User updateUser(User user) {
+        if (user.getId() == null) {
+            log.error("Пользователь не указал Id");
+            throw  new ValidationException("Должен быть указан Id пользователя");
+        }
+        if (user.getBirthday() == null) {
+            log.error("Пользователь не указал дату рождения");
+            throw new ValidationException("Должна быть указана дата рождения пользователя");
+        }
         int count = jdbc.update(updateUserQuery,user.getEmail(),user.getLogin(),user.getName(),user.getBirthday(),user.getId());
         if (count > 0) {
             return  user;
@@ -126,15 +137,10 @@ public class UserDbStorage implements UserStorage {
                 "INNER JOIN friendship f1 ON u.id = f1.friend_id " +
                 "INNER JOIN friendship f2 ON u.id = f2.friend_id " +
                 "WHERE f1.user_id = ? AND f2.user_id = ?";
-
-        // Получаем список общих друзей как объекты User
         List<User> commonFriends = jdbc.query(sql, new UserMapper(), userId, otherUserId);
-
-        // Если есть общие друзья, подгружаем их друзей
         if (!commonFriends.isEmpty()) {
             return getAllUsersWithFriends(commonFriends);
         }
-
         return commonFriends;
     }
 

@@ -3,7 +3,7 @@ CREATE TABLE users (
     email varchar(40) NOT NULL,
     login varchar(25) NOT NULL,
     name varchar(25) DEFAULT 'user_abuser',
-    birthday date NOT  NULL
+    birthday date
 );
 
 CREATE TABLE films (

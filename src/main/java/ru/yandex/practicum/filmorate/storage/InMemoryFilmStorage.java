@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -10,10 +11,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @Component
+@Qualifier("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
     private static final int MAX_LENGTH_DESCRIPTION = 200;
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
@@ -99,6 +102,32 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmOnId(Integer id) {
         return filmMap.get(id);
+    }
+
+    @Override
+    public void addLike(Integer idFilm, Integer userId) {
+        if (getFilmOnId(idFilm) == null) {
+            log.error("передан id несуществующего фильма");
+            throw new NotFoundException("фильм не найден");
+        }
+        getFilmOnId(idFilm).setUserOnLikeList(userId);
+    }
+
+    @Override
+    public void removeLike(Integer filmId, Integer userId) {
+        if (getFilmOnId(filmId) == null) {
+            log.error("Передан id несуществующего фильма");
+            throw new NotFoundException("фильм не найден");
+        }
+        getFilmOnId(filmId).removeUserOnLikeList(userId);
+    }
+
+    @Override
+    public List<Film> getTheMostPopularFilms(Integer count) {
+        return getAllFilms().stream()
+                .sorted((film1, film2) -> film2.getLikes().compareTo(film1.getLikes()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     private int getNextId() {

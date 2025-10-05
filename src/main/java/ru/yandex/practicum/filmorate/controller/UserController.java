@@ -26,7 +26,7 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         log.info("успешно обработан запрос:GET /users,возвращен список пользователей");
-        return userService.getAllUsersDb();
+        return userService.getAllUsers();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,11 +52,11 @@ public class UserController {
 
     @GetMapping("/{id}/friends")
     public List<User> getUsersFriendList(@PathVariable("id") Integer userId) {
-        return userService.getUsersFriendsDb(userId);
+        return userService.getUsersFriendList(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getMutualFriends(@PathVariable("id") Integer userId, @PathVariable Integer otherId) {
-        return userService.getCommonFriendsDb(userId, otherId);
+        return userService.getMutualFriends(userId, otherId);
     }
 }

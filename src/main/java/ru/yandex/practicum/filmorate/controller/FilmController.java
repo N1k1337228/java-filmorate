@@ -24,7 +24,7 @@ public class FilmController {
     @GetMapping
     public List<Film> getAllFilms() {
         log.info("Вернул список фильмов");
-        return filmService.getAllFilmsDb();
+        return filmService.getAllFilms();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -50,6 +50,6 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getMostPopularFilm(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.getMostPopularFilmsDb(count);
+        return filmService.getMostPopularFilms(count);
     }
 }

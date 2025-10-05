@@ -1,25 +1,24 @@
 package ru.yandex.practicum.filmorate;
 
 
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.dal.UserDbStorage;
+
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class UserControllerTest {
 
-    UserController controller = new UserController(new UserService(new InMemoryUserStorage(),
-            new UserDbStorage(new JdbcTemplate())));
+public class UserControllerTest {
+    UserController controller = new UserController(new UserService(new InMemoryUserStorage()));
     User user;
     ValidationException exception;
 
