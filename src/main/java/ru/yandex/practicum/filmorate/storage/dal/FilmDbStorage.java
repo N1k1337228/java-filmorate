@@ -37,9 +37,6 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
         }
-        if (film.getRating() == null) {
-            throw new ValidationException("Передан пустой MPA");
-        }
         if (film.getRating().getId() != null && film.getRating().getName() == null) {
             Mpa fullMpa = Mpa.getById(film.getRating().getId());
             film.setRating(fullMpa);
@@ -75,9 +72,6 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
-        }
-        if (film.getRating() == null) {
-            throw new ValidationException("Передан пустой MPA");
         }
         if (film.getRating().getId() != null && film.getRating().getName() == null) {
             Mpa fullMpa = Mpa.getById(film.getRating().getId());
