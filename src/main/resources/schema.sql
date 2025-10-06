@@ -33,7 +33,7 @@ CREATE TABLE film_genre (
     film_id integer,
     genre_id integer,
     CONSTRAINT film_genre_films_pk FOREIGN KEY (film_id) REFERENCES films(id),
-    CONSTRAINT film_genre_genre_pk FOREIGN KEY (genre_id) REFERENCES genre(id)
+    CONSTRAINT film_genre_genre_pk FOREIGN KEY (genre_id) REFERENCES genres(id)
 );
 
 CREATE TABLE like_users (

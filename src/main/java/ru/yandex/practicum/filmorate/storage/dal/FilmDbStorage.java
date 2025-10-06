@@ -243,7 +243,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbc.query(
                 "SELECT fg.film_id, g.id AS genre_id, g.name AS genre_name " +
                         "FROM film_genre fg " +
-                        "JOIN genre g ON fg.genre_id = g.id",
+                        "JOIN genres g ON fg.genre_id = g.id",
                 rs -> {
                     Map<Integer, List<Genre>> map = new HashMap<>();
                     while (rs.next()) {
