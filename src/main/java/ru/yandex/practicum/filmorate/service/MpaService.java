@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
@@ -25,6 +25,6 @@ public class MpaService {
         return allMpa.stream()
                 .filter(mpa -> mpa.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new ValidationException("MPA с id=" + id + " не найден"));
+                .orElseThrow(() -> new NotFoundException("MPA с id=" + id + " не найден"));
     }
 }

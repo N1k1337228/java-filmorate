@@ -75,6 +75,14 @@ public class FilmDbStorage implements FilmStorage {
         }
         jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getLikes(), film.getDuration(), film.getMpa().getId());
+        if (film.getGenres() != null) {
+            Set<Genre> uniqueGenres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
+            uniqueGenres.addAll(film.getGenres());
+            for (Genre genre : uniqueGenres) {
+                jdbc.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)",
+                        film.getId(), genre.getId());
+            }
+        }
         return film;
     }
 
@@ -118,8 +126,19 @@ public class FilmDbStorage implements FilmStorage {
             log.error("Введённая дата релиза фильма раньше 1895 года");
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
-        jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
+        Integer count = jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
+        if (count == null || count == 0) {
+            throw new NotFoundException("Фильм не найден");
+        }
+        if (film.getGenres() != null) {
+            Set<Genre> uniqueGenres = new TreeSet<>(Comparator.comparingInt(Genre::getId));
+            uniqueGenres.addAll(film.getGenres());
+            for (Genre genre : uniqueGenres) {
+                jdbc.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)",
+                        film.getId(), genre.getId());
+            }
+        }
         return film;
     }
 

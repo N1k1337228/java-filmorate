@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.storage.dal.GenreRepository;
 import ru.yandex.practicum.filmorate.storage.dal.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -279,5 +280,21 @@ class FilmorateApplicationTests {
         Genre genre = genreRepository.getGenreOnId(1);
         Assertions.assertNotNull(genre);
         Assertions.assertEquals("Комедия", genre.getName());
+    }
+
+    @Test
+    public void testAddGenreInFilm() {
+        Genre genre = genreRepository.getGenreOnId(1);
+        ArrayList<Genre> genres = new ArrayList<>();
+        genres.add(genre);
+        Film newFilm2 = new Film();
+        newFilm2.setName("newFilm1");
+        newFilm2.setDescription("newDescription1");
+        newFilm2.setDuration(132);
+        newFilm2.setReleaseDate(LocalDate.of(2003, 4, 3));
+        newFilm2.setMpa(new Mpa(4, "R"));
+        newFilm2.setGenres(genres);
+        filmStorage.addFilm(newFilm2);
+        Assertions.assertEquals(genre, filmStorage.getFilmOnId(3).getGenres().get(0));
     }
 }
