@@ -62,7 +62,7 @@ class FilmorateApplicationTests {
         film1.setDescription("description1");
         film1.setDuration(121);
         film1.setReleaseDate(LocalDate.of(2001, 1, 1));
-        film1.setRating(Mpa.R);
+        film1.setMpa(Mpa.R);
 
         film2 = new Film();
         film2.setId(2);
@@ -70,7 +70,7 @@ class FilmorateApplicationTests {
         film2.setDescription("description2");
         film2.setDuration(122);
         film2.setReleaseDate(LocalDate.of(2002, 2, 2));
-        film2.setRating(Mpa.R);
+        film2.setMpa(Mpa.R);
 
     }
 
@@ -183,7 +183,7 @@ class FilmorateApplicationTests {
         film3.setDescription("description3");
         film3.setDuration(123);
         film3.setReleaseDate(LocalDate.of(2003, 3, 3));
-        film3.setRating(Mpa.G);
+        film3.setMpa(Mpa.G);
         filmStorage.addFilm(film3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM films " +
                 "WHERE id = ?", Integer.class, 3);
@@ -199,7 +199,7 @@ class FilmorateApplicationTests {
         newFilm1.setDescription("newDescription1");
         newFilm1.setDuration(132);
         newFilm1.setReleaseDate(LocalDate.of(2003, 4, 3));
-        newFilm1.setRating(Mpa.G);
+        newFilm1.setMpa(Mpa.G);
         filmStorage.updateFilm(newFilm1);
         List<String> newUsersParam = jdbc.queryForList("SELECT title FROM films " +
                 "WHERE id = ?", String.class, 1);
@@ -271,13 +271,13 @@ class FilmorateApplicationTests {
     public void testGetAllGenre() {
         List<Genre> genres = genreRepository.getAllGenres();
         Assertions.assertFalse(genres.isEmpty());
-        Assertions.assertEquals(3, genres.size());
+        Assertions.assertEquals(6, genres.size());
     }
 
     @Test
     public void testGenreOnId() {
         Genre genre = genreRepository.getGenreOnId(1);
         Assertions.assertNotNull(genre);
-        Assertions.assertEquals("genre1", genre.getName());
+        Assertions.assertEquals("Комедия", genre.getName());
     }
 }

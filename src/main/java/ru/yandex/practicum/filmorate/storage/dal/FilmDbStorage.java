@@ -37,9 +37,9 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
         }
-        if (film.getRating().getId() != null && film.getRating().getName() == null) {
-            Mpa fullMpa = Mpa.getById(film.getRating().getId());
-            film.setRating(fullMpa);
+        if (film.getMpa().getId() != null && film.getMpa().getName() == null) {
+            Mpa fullMpa = Mpa.getById(film.getMpa().getId());
+            film.setMpa(fullMpa);
         }
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Пустая строка/пробел в названии фильма");
@@ -65,7 +65,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setId(nextId);
         }
         jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getLikes(), film.getDuration(), film.getRating().getName());
+                film.getLikes(), film.getDuration(), film.getMpa().getName());
         return film;
     }
 
@@ -73,9 +73,9 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
         }
-        if (film.getRating().getId() != null && film.getRating().getName() == null) {
-            Mpa fullMpa = Mpa.getById(film.getRating().getId());
-            film.setRating(fullMpa);
+        if (film.getMpa().getId() != null && film.getMpa().getName() == null) {
+            Mpa fullMpa = Mpa.getById(film.getMpa().getId());
+            film.setMpa(fullMpa);
         }
         if (film.getId() == null) {
             log.error("Не указан Id фильма");
@@ -99,7 +99,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
-                film.getDuration(), film.getRating().getName(), film.getId());
+                film.getDuration(), film.getMpa().getName(), film.getId());
         return film;
     }
 

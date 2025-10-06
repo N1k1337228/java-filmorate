@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.util.Arrays;
 import java.util.List;
 
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Mpa {
     G(1, "G"),
     PG(2, "PG"),
