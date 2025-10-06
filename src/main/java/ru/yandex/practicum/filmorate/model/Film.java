@@ -17,7 +17,7 @@ public class Film {
     private Set<Integer> usersIdLike = new HashSet<>();
     private Integer likes = 0;
     private int duration;
-    private List<Genre> genreOfFilm = new ArrayList<>();
+    private List<Genre> genres = new ArrayList<>();
     private Mpa mpa;
 
     public void setUserOnLikeList(Integer userId) {

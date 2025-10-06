@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -26,9 +25,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
     private final JdbcTemplate jdbc;
     private final String insertNewFilm = "INSERT INTO films (id, title, description, release_date, likes_count, " +
-            "duration, rating) VALUES (?,?,?,?,?,?,?)";
+            "duration, mpa_id) VALUES (?,?,?,?,?,?,?)";
     private final String updateFilm = "UPDATE films SET title=?, description=?, release_date=?, likes_count=?, " +
-            "duration=?, rating=? WHERE id = ?";
+            "duration=?, mpa_id=? WHERE id = ?";
     private final String deleteFilm = "DELETE FROM films WHERE id = ?";
     private final String findFilmOnId = "SELECT * FROM films WHERE id = ?";
 
@@ -39,6 +38,21 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Пустая строка/пробел в названии фильма");
             throw new ValidationException("название не может быть пустым");
+        }
+        if (film.getMpa() == null || film.getMpa().getId() == null) {
+            throw new ValidationException("MPA-рейтинг должен быть указан");
+        }
+        if (!isMpaExists(film.getMpa().getId())) {
+            log.error("Переданный рейтинг не найден");
+            throw new NotFoundException("Переданный рейтинг не найден");
+        }
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                if (!isGenreExists(genre.getId())) {
+                    log.error("Жанр не найден");
+                    throw new NotFoundException("Жанр с id=" + genre.getId() + " не найден");
+                }
+            }
         }
         if (film.getDescription() == null || film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
             log.error("Описание фильма занимает более 200 символов");
@@ -60,7 +74,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setId(nextId);
         }
         jdbc.update(insertNewFilm, film.getId(), film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getLikes(), film.getDuration(), film.getMpa().getName());
+                film.getLikes(), film.getDuration(), film.getMpa().getId());
         return film;
     }
 
@@ -71,6 +85,21 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getId() == null) {
             log.error("Не указан Id фильма");
             throw new ValidationException("Должен быть указан Id фильма");
+        }
+        if (film.getMpa() == null || film.getMpa().getId() == null) {
+            throw new ValidationException("MPA-рейтинг должен быть указан");
+        }
+        if (!isMpaExists(film.getMpa().getId())) {
+            log.error("Переданный рейтинг не найден");
+            throw new NotFoundException("Переданный рейтинг не найден");
+        }
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                if (!isGenreExists(genre.getId())) {
+                    log.error("Жанр не найден");
+                    throw new NotFoundException("Жанр с id=" + genre.getId() + " не найден");
+                }
+            }
         }
         if (film.getDescription() == null || film.getDescription().isBlank() ||
                 film.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
@@ -90,7 +119,7 @@ public class FilmDbStorage implements FilmStorage {
             throw new ValidationException("дата релиза — не раньше 28 декабря 1895 года");
         }
         jdbc.update(updateFilm, film.getName(), film.getDescription(), film.getReleaseDate(), film.getLikes(),
-                film.getDuration(), film.getMpa().getName(), film.getId());
+                film.getDuration(), film.getMpa().getId(), film.getId());
         return film;
     }
 
@@ -101,15 +130,42 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> getAllFilms() {
-        List<Film> films = jdbc.query("SELECT * FROM films", new FilmMapper());
+        String sql = """
+                    SELECT f.id,
+                           f.title,
+                           f.description,
+                           f.release_date,
+                           f.likes_count,
+                           f.duration,
+                           m.id AS mpa_id,
+                           m.name AS mpa_name
+                    FROM films AS f
+                    JOIN mpa AS m ON f.mpa_id = m.id
+                """;
+        List<Film> films = jdbc.query(sql, new FilmMapper());
         return getAllFilmsWithLikesAndGenres(films);
     }
 
     public Film getFilmOnId(Integer id) {
-        Film film = jdbc.queryForObject(findFilmOnId, new FilmMapper(), id);
-        film.setUsersIdLike(jdbc.queryForList("SELECT user_id FROM like_users WHERE film_id = ?", java.lang.Integer.class, id).stream()
-                .collect(Collectors.toSet()));
-        return film;
+        String sql = """
+                    SELECT f.id,
+                           f.title,
+                           f.description,
+                           f.release_date,
+                           f.likes_count,
+                           f.duration,
+                           m.id AS mpa_id,
+                           m.name AS mpa_name
+                    FROM films AS f
+                    JOIN mpa AS m ON f.mpa_id = m.id
+                    WHERE f.id = ?
+                """;
+        List<Film> films = jdbc.query(sql, new FilmMapper(), id);
+        if (films.isEmpty()) {
+            log.error("Фильм не найден");
+            throw new NotFoundException("Фильм не найден");
+        }
+        return getAllFilmsWithLikesAndGenres(films).get(0);
     }
 
     public void addLike(Integer filmId, Integer userId) {
@@ -134,10 +190,23 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public List<Film> getTheMostPopularFilms(Integer count) {
-        List<Film> films = jdbc.query("SELECT * FROM films " +
-                "ORDER BY likes_count DESC LIMIT ?", new FilmMapper(), count);
+        String sql = """
+                    SELECT f.id,
+                           f.title,
+                           f.description,
+                           f.release_date,
+                           f.likes_count,
+                           f.duration,
+                           m.id AS mpa_id,
+                           m.name AS mpa_name
+                    FROM films AS f
+                    JOIN mpa AS m ON f.mpa_id = m.id
+                    ORDER BY f.likes_count DESC
+                    LIMIT ?
+                """;
+        List<Film> films = jdbc.query(sql, new FilmMapper(), count);
         if (films.isEmpty()) {
-            return new ArrayList<Film>();
+            return new ArrayList<>();
         }
         return getAllFilmsWithLikesAndGenres(films);
     }
@@ -150,7 +219,7 @@ public class FilmDbStorage implements FilmStorage {
         Map<Integer, List<Genre>> genresByFilm = getAllGenres();
         for (Film film : films) {
             film.setUsersIdLike(likesByFilm.getOrDefault(film.getId(), Set.of()));
-            film.setGenreOfFilm(genresByFilm.getOrDefault(film.getId(), List.of()));
+            film.setGenres(genresByFilm.getOrDefault(film.getId(), List.of()));
         }
         return films;
     }
@@ -194,5 +263,17 @@ public class FilmDbStorage implements FilmStorage {
                     return map;
                 }
         );
+    }
+
+    private boolean isMpaExists(int mpaId) {
+        String sql = "SELECT COUNT(*) FROM mpa WHERE id = ?";
+        Integer count = jdbc.queryForObject(sql, Integer.class, mpaId);
+        return count != null && count > 0;
+    }
+
+    private boolean isGenreExists(Integer genreId) {
+        String sql = "SELECT COUNT(*) FROM genres WHERE id = ?";
+        Integer count = jdbc.queryForObject(sql, Integer.class, genreId);
+        return count != null && count > 0;
     }
 }

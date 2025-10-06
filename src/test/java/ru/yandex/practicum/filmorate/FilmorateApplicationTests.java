@@ -183,7 +183,7 @@ class FilmorateApplicationTests {
         film3.setDescription("description3");
         film3.setDuration(123);
         film3.setReleaseDate(LocalDate.of(2003, 3, 3));
-        film3.setMpa(new Mpa());
+        film3.setMpa(new Mpa(1, "G"));
         filmStorage.addFilm(film3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM films " +
                 "WHERE id = ?", Integer.class, 3);
