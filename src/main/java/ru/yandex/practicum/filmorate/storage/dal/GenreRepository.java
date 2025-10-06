@@ -19,7 +19,7 @@ public class GenreRepository {
 
     public List<Genre> getAllGenres() {
         try {
-            return jdbc.query("SELECT * FROM genre", new GenreMapper());
+            return jdbc.query("SELECT * FROM genres", new GenreMapper());
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Жанры не найдены");
         }
@@ -27,7 +27,7 @@ public class GenreRepository {
 
     public Genre getGenreOnId(Integer id) {
         try {
-            return jdbc.queryForObject("SELECT * FROM genre WHERE id = ?", new GenreMapper(), id);
+            return jdbc.queryForObject("SELECT * FROM genres WHERE id = ?", new GenreMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Запрашиваемый жанр не найден");
         }
