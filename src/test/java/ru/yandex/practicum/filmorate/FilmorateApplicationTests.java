@@ -62,7 +62,7 @@ class FilmorateApplicationTests {
         film1.setDescription("description1");
         film1.setDuration(121);
         film1.setReleaseDate(LocalDate.of(2001, 1, 1));
-        film1.setMpa(Mpa.R);
+        film1.setMpa(new Mpa(1, "G"));
 
         film2 = new Film();
         film2.setId(2);
@@ -70,7 +70,7 @@ class FilmorateApplicationTests {
         film2.setDescription("description2");
         film2.setDuration(122);
         film2.setReleaseDate(LocalDate.of(2002, 2, 2));
-        film2.setMpa(Mpa.R);
+        film2.setMpa(new Mpa(2, "G"));
 
     }
 
@@ -183,7 +183,7 @@ class FilmorateApplicationTests {
         film3.setDescription("description3");
         film3.setDuration(123);
         film3.setReleaseDate(LocalDate.of(2003, 3, 3));
-        film3.setMpa(Mpa.G);
+        film3.setMpa(new Mpa());
         filmStorage.addFilm(film3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM films " +
                 "WHERE id = ?", Integer.class, 3);
@@ -199,7 +199,7 @@ class FilmorateApplicationTests {
         newFilm1.setDescription("newDescription1");
         newFilm1.setDuration(132);
         newFilm1.setReleaseDate(LocalDate.of(2003, 4, 3));
-        newFilm1.setMpa(Mpa.G);
+        newFilm1.setMpa(new Mpa(4, "R"));
         filmStorage.updateFilm(newFilm1);
         List<String> newUsersParam = jdbc.queryForList("SELECT title FROM films " +
                 "WHERE id = ?", String.class, 1);

@@ -17,7 +17,29 @@ public class FilmMapper implements RowMapper<Film> {
         film.setReleaseDate(rs.getDate("release_date").toLocalDate());
         film.setLikes(rs.getInt("likes_count"));
         film.setDuration(rs.getInt("duration"));
-        film.setMpa(Mpa.fromString(rs.getString("rating")));
+        String rating = rs.getString("rating");
+        film.setMpa(createMpaFromRating(rating));
         return film;
     }
+
+    private Mpa createMpaFromRating(String rating) {
+        switch (rating) {
+            case "G":
+                return new Mpa(1, "G");
+            case "PG":
+                return new Mpa(2, "PG");
+            case "PG-13":
+                return new Mpa(3, "PG-13");
+            case "R":
+                return new Mpa(4, "R");
+            case "NC-17":
+                return new Mpa(5, "NC-17");
+            default:
+                throw new IllegalArgumentException("Unknown rating: " + rating);
+        }
+    }
+
 }
+
+
+

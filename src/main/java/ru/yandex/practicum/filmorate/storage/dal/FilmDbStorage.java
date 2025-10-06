@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
 
@@ -36,10 +35,6 @@ public class FilmDbStorage implements FilmStorage {
     public Film addFilm(Film film) {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
-        }
-        if (film.getMpa().getId() != null && film.getMpa().getName() == null) {
-            Mpa fullMpa = Mpa.getById(film.getMpa().getId());
-            film.setMpa(fullMpa);
         }
         if (film.getName() == null || film.getName().isBlank()) {
             log.error("Пустая строка/пробел в названии фильма");
@@ -72,10 +67,6 @@ public class FilmDbStorage implements FilmStorage {
     public Film updateFilm(Film film) {
         if (film == null) {
             throw new ValidationException("пустое тело запроса");
-        }
-        if (film.getMpa().getId() != null && film.getMpa().getName() == null) {
-            Mpa fullMpa = Mpa.getById(film.getMpa().getId());
-            film.setMpa(fullMpa);
         }
         if (film.getId() == null) {
             log.error("Не указан Id фильма");
