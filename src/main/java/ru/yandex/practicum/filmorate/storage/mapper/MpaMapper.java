@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class MpaMapper implements RowMapper<Mpa> {
 
     @Override
-    public Mpa mapRow (ResultSet rs, int intRow) throws SQLException {
+    public Mpa mapRow(ResultSet rs, int intRow) throws SQLException {
         Mpa mpa = new Mpa();
         mpa.setId(rs.getInt("id"));
         mpa.setName(rs.getString("name"));
