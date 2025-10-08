@@ -133,6 +133,13 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(friends);
     }
 
+    public List<User> getCommonFriends(Integer userId, Integer otherId) {
+        List<User> userFriends = getListFriendsOnUsersId(userId);
+        List<User> otherFriends = getListFriendsOnUsersId(otherId);
+        userFriends.retainAll(otherFriends);
+        return userFriends;
+    }
+
     private boolean isFriends(Integer userId, Integer friendId) {
         return getUserOnId(userId).get().getFriends().contains(friendId) &&
                 getUserOnId(friendId).get().getFriends().contains(userId);

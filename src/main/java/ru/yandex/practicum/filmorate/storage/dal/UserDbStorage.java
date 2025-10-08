@@ -11,7 +11,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 
 @Slf4j
@@ -65,17 +68,15 @@ public class UserDbStorage implements UserStorage {
         if (users.isEmpty()) {
             throw new NotFoundException("Пользователь не найден");
         }
-        return getAllUsersWithFriends(users);
+        return users;
     }
 
     public Optional<User> getUserOnId(Integer id) {
-        User user;
-        try {
-            user = jdbc.queryForObject(findUserOnIdQuery, new UserMapper(), id);
-
-        } catch (EmptyResultDataAccessException e) {
+        List<User> users = jdbc.query(findUserOnIdQuery, new UserMapper(), id);
+        if (users.isEmpty()) {
             return Optional.empty();
         }
+        User user = users.get(0);
         user.setFriends(new HashSet<Integer>(jdbc.queryForList("SELECT friend_id FROM users AS u INNER JOIN friendship AS f ON " +
                 "f.user_id = u.id WHERE u.id = ?", Integer.class, id)));
         return Optional.of(user);
@@ -131,48 +132,19 @@ public class UserDbStorage implements UserStorage {
         if (friends.isEmpty()) {
             return new ArrayList<User>();
         }
-        return getAllUsersWithFriends(friends);
+        return friends;
     }
 
-    public List<User> getCommonFriends(Integer userId, Integer otherUserId) {
-        // SQL находит общих друзей по userId и otherUserId и сразу получает их данные
+    public List<User> getCommonFriends(Integer userId, Integer otherId) {
         String sql = "SELECT u.* " +
                 "FROM users u " +
                 "INNER JOIN friendship f1 ON u.id = f1.friend_id " +
                 "INNER JOIN friendship f2 ON u.id = f2.friend_id " +
                 "WHERE f1.user_id = ? AND f2.user_id = ?";
-        List<User> commonFriends = jdbc.query(sql, new UserMapper(), userId, otherUserId);
+        List<User> commonFriends = jdbc.query(sql, new UserMapper(), userId, otherId);
         if (!commonFriends.isEmpty()) {
-            return getAllUsersWithFriends(commonFriends);
+            return commonFriends;
         }
         return commonFriends;
-    }
-
-    private List<User> getAllUsersWithFriends(List<User> users) {
-        if (users.isEmpty()) {
-            return users;
-        }
-        Map<Integer, Set<Integer>> friendsByUser = jdbc.query(
-                "SELECT user_id, friend_id FROM friendship",
-                rs -> {
-                    Map<Integer, Set<Integer>> map = new HashMap<>();
-                    while (rs.next()) {
-                        int userId = rs.getInt("user_id");
-                        int friendId = rs.getInt("friend_id");
-
-                        Set<Integer> friends = map.get(userId);
-                        if (friends == null) {
-                            friends = new HashSet<>();
-                            map.put(userId, friends);
-                        }
-                        friends.add(friendId);
-                    }
-                    return map;
-                }
-        );
-        for (User user : users) {
-            user.setFriends(friendsByUser.getOrDefault(user.getId(), Set.of()));
-        }
-        return users;
     }
 }

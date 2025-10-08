@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -78,48 +77,22 @@ public class UserService {
         return userStorage.getAllUsers();
     }
 
-    public List<User> getMutualFriends(Integer userId, Integer otherId) {
-        if (userId == null || otherId == null) {
-            log.error("Передан пустой id");
-            throw new ValidationException("Передан пустой id");
-        }
-        Optional<User> optionalUser = userStorage.getUserOnId(userId);
-        Optional<User> optionalOther = userStorage.getUserOnId(otherId);
-        if (optionalUser.isEmpty() || optionalOther.isEmpty()) {
-            log.error("Пользователь не найден");
-            throw new NotFoundException("Пользователь не найден");
-        }
-        User user = optionalUser.get();
-        User other = optionalOther.get();
+    public List<User> getMutualFriends(int userId, int otherId) {
+        User user = userStorage.getUserOnId(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User other = userStorage.getUserOnId(otherId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         if (user.getFriends() == null || other.getFriends() == null ||
                 user.getFriends().isEmpty() || other.getFriends().isEmpty()) {
             log.error("У пользователей пока нет друзей");
             throw new ValidationException("У пользователей пока нет друзей");
         }
-        List<User> userFriends = userStorage.getListFriendsOnUsersId(userId);
-        List<User> otherFriends = userStorage.getListFriendsOnUsersId(otherId);
-        userFriends.retainAll(otherFriends);
-        return userFriends;
+        return userStorage.getCommonFriends(userId, otherId);
     }
 
-    public User getUserOnId(Integer id) {
-        if (id == null) {
-            log.error("Передан пустой id");
-            throw new ValidationException("Пустой id пользователя");
-        }
-        Optional<User> user = userStorage.getUserOnId(id);
-        if (user.isEmpty()) {
-            log.error("Пользователь не найден");
-            throw new NotFoundException("Пользователь не найден");
-        }
-        return user.get();
+    public User getUserOnId(int id) {
+        return userStorage.getUserOnId(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
     }
 
-    public void addUserToFriends(Integer userId, Integer friendId) {
-        if (userId == null || friendId == null) {
-            log.error("передан пустой id");
-            throw new ValidationException("Передан пустой id");
-        }
+    public void addUserToFriends(int userId, int friendId) {
         if (!findUser(userId) || !findUser(friendId)) {
             log.error("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
@@ -127,11 +100,7 @@ public class UserService {
         userStorage.addUserToFriends(userId, friendId);
     }
 
-    public void removeFriend(Integer userId, Integer friendId) {
-        if (userId == null || friendId == null) {
-            log.error("Был передан пустой id");
-            throw new ValidationException("передан пустой id");
-        }
+    public void removeFriend(int userId, int friendId) {
         if (!findUser(userId) || !findUser(friendId)) {
             log.error("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
@@ -139,11 +108,7 @@ public class UserService {
         userStorage.deleteUserFromFriend(userId, friendId);
     }
 
-    public List<User> getUsersFriendList(Integer id) {
-        if (id == null) {
-            log.error("Был передан пустой id");
-            throw new ValidationException("передан пустой id");
-        }
+    public List<User> getUsersFriendList(int id) {
         if (!findUser(id)) {
             log.error("Пользователь не найден");
             throw new NotFoundException("Пользователь не найден");

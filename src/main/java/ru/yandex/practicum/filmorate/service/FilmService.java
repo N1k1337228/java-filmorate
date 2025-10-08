@@ -93,11 +93,7 @@ public class FilmService {
         return filmStorage.getAllFilms();
     }
 
-    public void addLike(Integer idFilm, Integer userId) {
-        if (idFilm == null || userId == null) {
-            log.error("Полученный id пустые");
-            throw new ValidationException("Полученный id пустые");
-        }
+    public void addLike(int idFilm, int userId) {
         if (userStorage.getUserOnId(userId) == null) {
             log.error("Неизвестный пользователь пытался поставить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может ставить лайки");
@@ -109,27 +105,19 @@ public class FilmService {
         filmStorage.addLike(idFilm, userId);
     }
 
-    public void removeLike(Integer idFilm, Integer userId) {
-        if (idFilm == null || userId == null) {
-            log.error("полученный id пустые");
-            throw new ValidationException("Полученный id пустые");
-        }
-        if (userStorage.getUserOnId(userId) == null) {
+    public void removeLike(int idFilm, int userId) {
+        if (userStorage.getUserOnId(userId).isEmpty()) {
             log.error("неизвестный пользователь пытался удалить лайк");
             throw new NotFoundException("Незарегистрированный пользователь не может удалять лайки");
         }
         filmStorage.removeLike(idFilm, userId);
     }
 
-    public Film getFilmOnId(Integer id) {
-        if (id == null) {
-            log.error("полученный id фильма пустой");
-            throw new ValidationException("Полученный id фильма пустой");
-        }
+    public Film getFilmOnId(int id) {
         return filmStorage.getFilmOnId(id);
     }
 
-    public List<Film> getMostPopularFilms(Integer count) {
+    public List<Film> getMostPopularFilms(int count) {
         if (count < 0) {
             log.error("Был передан отрицательный count");
             throw new ValidationException("Нельзя передать отрицательное количество фильмов!");

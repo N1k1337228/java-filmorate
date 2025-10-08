@@ -22,4 +22,5 @@ public interface UserStorage {
 
     void addUserToFriends(Integer userId, Integer friendId);
 
+    List<User> getCommonFriends(Integer userId, Integer otherId);
 }
