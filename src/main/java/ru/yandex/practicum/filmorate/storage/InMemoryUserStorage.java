@@ -1,18 +1,18 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
+@Qualifier("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Integer, User> userMap = new HashMap<>();
@@ -88,8 +88,61 @@ public class InMemoryUserStorage implements UserStorage {
         return userMap.remove(user.getId());
     }
 
-    public User getUserOnId(Integer id) {
-        return userMap.get(id);
+    public Optional<User> getUserOnId(Integer id) {
+        return Optional.ofNullable(userMap.get(id));
+    }
+
+    public void addUserToFriends(Integer userId, Integer friendId) {
+        if (userId.equals(friendId)) {
+            throw new ValidationException("Нельзя добавить себя в друзья");
+        }
+        if (getUserOnId(userId).isEmpty() || getUserOnId(friendId).isEmpty()) {
+            log.error("пользователь не найден");
+            throw new NotFoundException("Пользователь не найден");
+        }
+        if (isFriends(userId, friendId)) {
+            throw new ValidationException("Пользователи уже друзья");
+        }
+        getUserOnId(userId).get().setFriend(friendId);
+        getUserOnId(friendId).get().setFriend(userId);
+    }
+
+    public void deleteUserFromFriend(Integer userId, Integer friendId) {
+        if (getUserOnId(userId).isEmpty() || getUserOnId(friendId).isEmpty()) {
+            log.error("пользователь не был найден");
+            throw new NotFoundException("Пользователь не был найден");
+        }
+        if (isFriends(userId, friendId)) {
+            getUserOnId(friendId).get().removeOnFriend(userId);
+            getUserOnId(userId).get().removeOnFriend(friendId);
+        }
+    }
+
+    public List<User> getListFriendsOnUsersId(Integer userId) {
+        Optional<User> user = getUserOnId(userId);
+        if (user.isEmpty()) {
+            log.error("Пользователь не был найден");
+            throw new NotFoundException("пользователь не был найден");
+        }
+        HashSet<User> friends = new HashSet<>();
+        for (Integer id : user.get().getFriends()) {
+            if (getAllUsers().contains(getUserOnId(id).get())) {
+                friends.add(getUserOnId(id).get());
+            }
+        }
+        return new ArrayList<>(friends);
+    }
+
+    public List<User> getCommonFriends(Integer userId, Integer otherId) {
+        List<User> userFriends = getListFriendsOnUsersId(userId);
+        List<User> otherFriends = getListFriendsOnUsersId(otherId);
+        userFriends.retainAll(otherFriends);
+        return userFriends;
+    }
+
+    private boolean isFriends(Integer userId, Integer friendId) {
+        return getUserOnId(userId).get().getFriends().contains(friendId) &&
+                getUserOnId(friendId).get().getFriends().contains(userId);
     }
 
     private int getNextId() {

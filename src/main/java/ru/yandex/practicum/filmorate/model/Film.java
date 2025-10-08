@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -14,8 +17,8 @@ public class Film {
     private Set<Integer> usersIdLike = new HashSet<>();
     private Integer likes = 0;
     private int duration;
-    private  HashSet<String> genreOfFilm;
-    private MPA raiting;
+    private List<Genre> genres = new ArrayList<>();
+    private Mpa mpa;
 
     public void setUserOnLikeList(Integer userId) {
         if (!usersIdLike.contains(userId)) {

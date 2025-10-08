@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+
 import java.util.List;
 
 @Slf4j
@@ -30,7 +31,6 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
         return filmService.addNewFilm(film);
-
     }
 
     @PutMapping
@@ -46,6 +46,11 @@ public class FilmController {
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmOnId(@PathVariable Integer id) {
+        return filmService.getFilmOnId(id);
     }
 
     @GetMapping("/popular")
