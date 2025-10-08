@@ -61,13 +61,13 @@ INSERT INTO mpa (id, name) VALUES
 (4, 'R'),
 (5, 'NC-17');
 
-INSERT INTO users (id, name, email, login, birthday) VALUES
-(1, 'Gde1', 'Gde1_email@', 'Gde228_1337_1', '2001-01-01'),
-(2, 'Gde2', 'Gde2_email@', 'Gde228_1337_2', '2002-02-02');
+INSERT INTO users (id,name, email, login, birthday) VALUES
+(1,'Gde1', 'Gde1_email@', 'Gde228_1337_1', '2001-01-01'),
+(2,'Gde2', 'Gde2_email@', 'Gde228_1337_2', '2002-02-02');
 
-INSERT INTO films (id, title, description, release_date,duration,mpa_id)
-VALUES (1,'Film1','description1','2001-01-01',121,1),
-(2,'Film2','description2','2002-02-02',122,2);
+INSERT INTO films (title, description, release_date,duration,mpa_id)
+VALUES ('Film1','description1','2001-01-01',121,1),
+('Film2','description2','2002-02-02',122,2);
 
 INSERT INTO genres (id, name)
 VALUES
@@ -77,7 +77,3 @@ VALUES
     (4, 'Триллер'),
     (5, 'Документальный'),
     (6, 'Боевик');
-
-
-
-

@@ -8,10 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -91,54 +88,54 @@ public class InMemoryUserStorage implements UserStorage {
         return userMap.remove(user.getId());
     }
 
-    public User getUserOnId(Integer id) {
-        return userMap.get(id);
+    public Optional<User> getUserOnId(Integer id) {
+        return Optional.ofNullable(userMap.get(id));
     }
 
     public void addUserToFriends(Integer userId, Integer friendId) {
         if (userId.equals(friendId)) {
             throw new ValidationException("Нельзя добавить себя в друзья");
         }
-        if (getUserOnId(userId) == null || getUserOnId(friendId) == null) {
+        if (getUserOnId(userId).isEmpty() || getUserOnId(friendId).isEmpty()) {
             log.error("пользователь не найден");
             throw new NotFoundException("Пользователь не найден");
         }
         if (isFriends(userId, friendId)) {
             throw new ValidationException("Пользователи уже друзья");
         }
-        getUserOnId(userId).setFriend(friendId);
-        getUserOnId(friendId).setFriend(userId);
+        getUserOnId(userId).get().setFriend(friendId);
+        getUserOnId(friendId).get().setFriend(userId);
     }
 
     public void deleteUserFromFriend(Integer userId, Integer friendId) {
-        if (getUserOnId(userId) == null || getUserOnId(friendId) == null) {
+        if (getUserOnId(userId).isEmpty() || getUserOnId(friendId).isEmpty()) {
             log.error("пользователь не был найден");
             throw new NotFoundException("Пользователь не был найден");
         }
         if (isFriends(userId, friendId)) {
-            getUserOnId(friendId).removeOnFriend(userId);
-            getUserOnId(userId).removeOnFriend(friendId);
+            getUserOnId(friendId).get().removeOnFriend(userId);
+            getUserOnId(userId).get().removeOnFriend(friendId);
         }
     }
 
     public List<User> getListFriendsOnUsersId(Integer userId) {
-        User user = getUserOnId(userId);
-        if (user == null) {
+        Optional<User> user = getUserOnId(userId);
+        if (user.isEmpty()) {
             log.error("Пользователь не был найден");
             throw new NotFoundException("пользователь не был найден");
         }
         HashSet<User> friends = new HashSet<>();
-        for (Integer id : user.getFriends()) {
-            if (getAllUsers().contains(getUserOnId(id))) {
-                friends.add(getUserOnId(id));
+        for (Integer id : user.get().getFriends()) {
+            if (getAllUsers().contains(getUserOnId(id).get())) {
+                friends.add(getUserOnId(id).get());
             }
         }
         return new ArrayList<>(friends);
     }
 
     private boolean isFriends(Integer userId, Integer friendId) {
-        return getUserOnId(userId).getFriends().contains(friendId) &&
-                getUserOnId(friendId).getFriends().contains(userId);
+        return getUserOnId(userId).get().getFriends().contains(friendId) &&
+                getUserOnId(friendId).get().getFriends().contains(userId);
     }
 
     private int getNextId() {

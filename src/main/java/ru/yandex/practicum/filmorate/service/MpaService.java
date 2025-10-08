@@ -1,30 +1,29 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.mapper.MpaMapper;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MpaService {
 
-    private final List<Mpa> allMpa = List.of(
-            new Mpa(1, "G"),
-            new Mpa(2, "PG"),
-            new Mpa(3, "PG-13"),
-            new Mpa(4, "R"),
-            new Mpa(5, "NC-17")
-    );
+    private final JdbcTemplate jdbc;
 
     public List<Mpa> getAllMpa() {
-        return allMpa;
+        return jdbc.query("SELECT * FROM mpa", new MpaMapper());
     }
 
     public Mpa getMpaById(int id) {
-        return allMpa.stream()
-                .filter(mpa -> mpa.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("MPA с id=" + id + " не найден"));
+        List<Mpa> mpa = jdbc.query("SELECT * FROM mpa WHERE id = ?", new MpaMapper(),id);
+        if (mpa.isEmpty()) {
+            throw new NotFoundException("Запрашиваемый mpa не найден");
+        }
+        return mpa.getFirst();
     }
 }

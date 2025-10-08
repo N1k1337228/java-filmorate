@@ -77,7 +77,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindUserById() {
-        User user = userStorage.getUserOnId(1);
+        User user = userStorage.getUserOnId(1).get();
         assertThat(user).isNotNull();
         assertThat(user.getId()).isEqualTo(1);
     }
@@ -187,7 +187,7 @@ class FilmorateApplicationTests {
         film3.setMpa(new Mpa(1, "G"));
         filmStorage.addFilm(film3);
         Integer count = jdbc.queryForObject("SELECT COUNT(*) FROM films " +
-                "WHERE id = ?", Integer.class, 3);
+                "WHERE id = ?", Integer.class, 1);
         Assertions.assertNotNull(count);
         Assertions.assertEquals(1, count);
     }
@@ -295,6 +295,6 @@ class FilmorateApplicationTests {
         newFilm2.setMpa(new Mpa(4, "R"));
         newFilm2.setGenres(genres);
         filmStorage.addFilm(newFilm2);
-        Assertions.assertEquals(genre, filmStorage.getFilmOnId(3).getGenres().get(0));
+        Assertions.assertEquals(genre, filmStorage.getFilmOnId(newFilm2.getId()).getGenres().get(0));
     }
 }

@@ -7,12 +7,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.mapper.UserMapper;
 
-import java.time.LocalDate;
 import java.util.*;
 
 
@@ -23,33 +21,13 @@ import java.util.*;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbc;
-    private final String addUserQuery = "INSERT INTO users VALUES (?,?,?,?,?)";
+    private final String addUserQuery = "INSERT INTO users (id, email, login, name, birthday) VALUES (?,?,?,?,?)";
     private final String updateUserQuery = "UPDATE users SET email=?, login=?, name=?, birthday=? WHERE id=?";
     private final String deleteUserQuery = "DELETE FROM users WHERE id=?";
     private final String allUsersQuery = "SELECT * FROM users";
     private final String findUserOnIdQuery = "SELECT * FROM users WHERE id=?";
 
     public User addUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            log.error("Email пользователя не был указан");
-            throw new ValidationException("email не может быть пустым");
-        }
-        if (!(user.getEmail().contains("@"))) {
-            log.error("Email пользователя не содержит @");
-            throw new ValidationException("email не содержит символ: @");
-        }
-        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.error("Пользователь не указал логин или он содержит пробелы");
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-        }
-        if (user.getBirthday().isAfter(LocalDate.now()) || user.getBirthday().isEqual(LocalDate.now())) {
-            log.error("Дата рождения пользователя указана в будущем");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.debug("Пользователь не указал имя: логин {} будет использоваться как имя", user.getLogin());
-            user.setName(user.getLogin());
-        }
         if (user.getId() == null) {
             Integer nextId = jdbc.queryForObject(
                     "SELECT COALESCE(MAX(id), 0) + 1 FROM users",
@@ -67,29 +45,6 @@ public class UserDbStorage implements UserStorage {
     }
 
     public User updateUser(User user) {
-        if (user == null) {
-            throw new ValidationException("пустое тело запроса");
-        }
-        if (user.getId() == null) {
-            log.error("Пользователь не указал Id");
-            throw new ValidationException("Должен быть указан Id пользователя");
-        }
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            log.error("Пользователь не указал email");
-            throw new ValidationException("Должен быть указан email пользователя");
-        }
-        if (user.getBirthday() == null) {
-            log.error("Пользователь не указал дату рождения");
-            throw new ValidationException("Должна быть указана дата рождения пользователя");
-        }
-        if (user.getName() == null || user.getName().isEmpty()) {
-            log.error("Пользователь не указал имя");
-            throw new ValidationException("Должно быть указано имя пользователя");
-        }
-        if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.error("пользователь не указал логин или он содержит пробелы");
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-        }
         int count = jdbc.update(updateUserQuery, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
         if (count > 0) {
             return user;
@@ -113,11 +68,17 @@ public class UserDbStorage implements UserStorage {
         return getAllUsersWithFriends(users);
     }
 
-    public User getUserOnId(Integer id) {
-        User user = jdbc.queryForObject(findUserOnIdQuery, new UserMapper(), id);
+    public Optional<User> getUserOnId(Integer id) {
+        User user;
+        try {
+            user = jdbc.queryForObject(findUserOnIdQuery, new UserMapper(), id);
+
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
         user.setFriends(new HashSet<Integer>(jdbc.queryForList("SELECT friend_id FROM users AS u INNER JOIN friendship AS f ON " +
                 "f.user_id = u.id WHERE u.id = ?", Integer.class, id)));
-        return user;
+        return Optional.of(user);
     }
 
     public void addUserToFriends(Integer userId, Integer friendId) {
